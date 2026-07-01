@@ -12,7 +12,7 @@ function App() {
     setIsLoading(true);
     setQuestion("");
 
-    fetch(`${apiUrl}/message?question=${encodeURIComponent(question)}`)
+    fetch(`${apiUrl}/message?question=${encodeURIComponent(message)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
