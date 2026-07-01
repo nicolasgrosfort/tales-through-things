@@ -1,3 +1,5 @@
+import { extractJson } from "./helpers";
+
 const HERMES_SYSTEM_PROMPT = "";
 
 export async function sendMessage(input: string, conversationId: string) {
@@ -11,8 +13,7 @@ export async function sendMessage(input: string, conversationId: string) {
       model: "hermes-agent",
       input,
       conversation: conversationId,
-      instructions: `Réponds uniquement avec un JSON valide, sans texte autour, respectant exactement ce schéma :
-{"ready": boolean, "question": string}`,
+      instructions: `Réponds uniquement avec un JSON valide, sans texte autour, respectant exactement ce schéma : {"ready": boolean, "question": string}`,
     }),
   });
 
@@ -20,7 +21,12 @@ export async function sendMessage(input: string, conversationId: string) {
   const data = await res.json();
 
   const message = data.output.find((o: any) => o.type === "message");
-  return { response: message?.content?.[0]?.text ?? "", sessionID: sessionId };
+  const parsedMessage = extractJson(message?.content?.[0]?.text ?? "{}");
+  return {
+    ready: parsedMessage.ready,
+    response: parsedMessage.question,
+    sessionID: sessionId,
+  };
 }
 
 export const getSession = async (sessionId: string) => {
