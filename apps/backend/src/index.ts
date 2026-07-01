@@ -1,7 +1,6 @@
 import cors from "cors";
 import express from "express";
-
-import { clearSessions, getSession, sendMessage } from "./utils/controller";
+import { sendMessage } from "./utils/controller";
 import { getLocalIp } from "./utils/helpers";
 
 const app = express();
@@ -17,21 +16,8 @@ app.use(express.json());
 
 app.get("/message", async (req, res) => {
   const question = req.query.question as string;
-  const conversationId = req.query.conversationId as string;
-  const data = await sendMessage(question, conversationId);
+  const data = await sendMessage(question);
   res.json({ status: "ok", response: data });
-});
-
-app.get("/session", async (req, res) => {
-  const sessionId = req.query.sessionId as string;
-  const sessionData = await getSession(sessionId);
-  res.json({ status: "ok", session: sessionData });
-});
-
-app.get("/clear-sessions", async (req, res) => {
-  const sessionId = req.query.sessionId as string;
-  await clearSessions(sessionId);
-  res.json({ status: "ok" });
 });
 
 app.listen(port, "0.0.0.0", () => {

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
@@ -6,42 +6,18 @@ function App() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionID, setSessionID] = useState<string | undefined>(undefined);
-
-  const conversationID = useRef(`user-${Math.floor(Math.random() * 1000)}`);
 
   const handleMessage = () => {
     setIsLoading(true);
     setQuestion("");
 
-    fetch(
-      `${apiUrl}/message?question=${encodeURIComponent(question)}&conversationId=${conversationID.current}`,
-    )
+    fetch(`${apiUrl}/message?question=${encodeURIComponent(question)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
         // setResponse(data.response);
-        setSessionID(data.sessionID);
       })
       .finally(() => setIsLoading(false));
-  };
-
-  const handleSession = (conversationID?: string) => {
-    const query = conversationID ? `?conversationId=${conversationID}` : "";
-    fetch(`${apiUrl}/session${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Session data:", data);
-      });
-  };
-
-  const handleClearSessions = (sessionID?: string) => {
-    const query = sessionID ? `?sessionId=${sessionID}` : "";
-    fetch(`${apiUrl}/clear-sessions${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Clear sessions response:", data);
-      });
   };
 
   return (
@@ -70,30 +46,6 @@ function App() {
           }}
         >
           {isLoading ? "Loading..." : "Send"}
-        </button>
-        <button
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleSession(sessionID)}
-        >
-          Log Current Session
-        </button>
-        <button
-          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleClearSessions(sessionID)}
-        >
-          Clear Current Session
-        </button>
-        <button
-          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleSession()}
-        >
-          Log All Session
-        </button>
-        <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          onClick={async () => handleClearSessions()}
-        >
-          Clear All Sessions
         </button>
       </div>
 
