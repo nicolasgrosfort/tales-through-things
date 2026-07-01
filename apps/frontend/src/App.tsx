@@ -15,6 +15,7 @@ function App() {
     fetch(`${apiUrl}/message?question=${encodeURIComponent(question)}`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("Response from backend:", data);
         setIsReady(data.ready);
         setResponse(data.response);
       })
