@@ -1,5 +1,3 @@
-import { extractJson } from "./helpers";
-
 const HERMES_SYSTEM_PROMPT = "";
 
 export async function sendMessage(input: string, conversationId: string) {
@@ -13,18 +11,36 @@ export async function sendMessage(input: string, conversationId: string) {
       model: "hermes-agent",
       input,
       conversation: conversationId,
-      instructions: `Réponds uniquement avec un JSON valide, sans texte autour, respectant exactement ce schéma : {"ready": boolean, "question": string}`,
+      instructions:
+        "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
+      // Force nativement la structure JSON au niveau de l'API Hermes
+      response_format: {
+        type: "json_object",
+        schema: {
+          type: "object",
+          properties: {
+            ready: { type: "boolean" },
+            question: { type: "string" },
+          },
+          required: ["ready", "question"],
+        },
+      },
     }),
   });
 
   const sessionId = res.headers.get("x-hermes-session-id");
   const data = await res.json();
 
-  const message = data.output.find((o: any) => o.type === "message");
-  const parsedMessage = extractJson(message?.content?.[0]?.text ?? "{}");
+  // Extraction sécurisée du message de l'agent
+  const message = data.output?.find((o: any) => o.type === "message");
+  const rawText = message?.content?.[0]?.text ?? "{}";
+
+  // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
+  const parsedMessage = JSON.parse(rawText);
+
   return {
-    ready: parsedMessage.ready,
-    response: parsedMessage.question,
+    ready: !!parsedMessage.ready,
+    response: parsedMessage.question ?? "",
     sessionID: sessionId,
   };
 }
