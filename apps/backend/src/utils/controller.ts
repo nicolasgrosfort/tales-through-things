@@ -11,7 +11,7 @@ export async function sendMessage(
   input: string,
   conversationId: string,
 ): Promise<ResponseType> {
-  const res = await fetch("http://localhost:8642/v1/chat/completions", {
+  const res = await fetch("http://localhost:8642/v1/responses", {
     method: "POST",
     headers: {
       Authorization: "Bearer tales-through-things",
@@ -19,14 +19,18 @@ export async function sendMessage(
     },
     body: JSON.stringify({
       model: "hermes-agent",
-      messages: [
-        {
-          role: "system",
-          content: 'Reponse format : {"ready": boolean, "question": string}.',
-        },
-        { role: "user", content: input },
-      ],
-      stream: false,
+      store: true,
+      input,
+      conversation: conversationId,
+      instructions: 'Reponse format : {"ready": boolean, "question": string}.',
+      //   messages: [
+      //     {
+      //       role: "system",
+      //       content: 'Reponse format : {"ready": boolean, "question": string}.',
+      //     },
+      //     { role: "user", content: input },
+      //   ],
+      //   stream: false,
       //   input,
       //   conversation: conversationId,
       //   instructions:
