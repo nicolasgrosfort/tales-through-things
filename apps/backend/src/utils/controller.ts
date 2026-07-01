@@ -19,7 +19,8 @@ export async function sendMessage(input: string): Promise<ResponseType> {
       messages: [
         {
           role: "system",
-          content: 'Reponse format : {"ready": boolean, "question": string}.',
+          content:
+            'Reponse toujours dans ce format : {"ready": boolean, "question": string}.',
         },
         { role: "user", content: input },
       ],
