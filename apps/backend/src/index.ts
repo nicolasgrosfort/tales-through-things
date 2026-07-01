@@ -22,8 +22,8 @@ app.get("/message", async (req, res) => {
   res.json({ status: "ok", response });
 });
 
-app.get("/session/:sessionId?", async (req, res) => {
-  const sessionId = req.params["sessionId?"];
+app.get("/session/:sessionId", async (req, res) => {
+  const sessionId = req.params["sessionId"];
   const sessionData = await getSession(sessionId);
   res.json({ status: "ok", session: sessionData });
 });
