@@ -20,8 +20,11 @@ export async function sendMessage(
     body: JSON.stringify({
       model: "hermes-agent",
       messages: [
-        { role: "system", content: "You are a Python expert." },
-        { role: "user", content: "Write a fibonacci function" },
+        {
+          role: "system",
+          content: 'Reponse format : {"ready": boolean, "question": string}.',
+        },
+        { role: "user", content: input },
       ],
       stream: false,
       //   input,
