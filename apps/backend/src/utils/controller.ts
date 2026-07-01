@@ -12,10 +12,7 @@ const Response = z.object({
   question: z.string(),
 });
 
-export async function sendMessage(
-  message: string,
-  conversationId: string,
-): Promise<string> {
+export async function sendMessage(message: string, conversationId: string) {
   const completion = await openai.responses.parse({
     model: "hermes-agent",
     input: [
@@ -29,7 +26,7 @@ export async function sendMessage(
 
   const response = completion;
   console.log("Parsed response:", response);
-  return "response";
+  return response;
 }
 
 // const HERMES_SYSTEM_PROMPT =
