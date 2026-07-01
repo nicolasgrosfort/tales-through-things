@@ -30,8 +30,9 @@ export async function sendMessage(input: string): Promise<ResponseType> {
   });
 
   const data = await res.json();
-  const content = data.response.choices[0].message.content;
-  const parsed = ResponseSchema.parse(JSON.parse(content));
+  console.log("Raw response from HERMES API:", data);
+  //   const content = data.response.choices[0].message.content;
+  //   const parsed = ResponseSchema.parse(JSON.parse(content));
 
-  return parsed;
+  return data;
 }
