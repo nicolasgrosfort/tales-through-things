@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
@@ -8,7 +8,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  const handleMessage = () => {
+  const handleMessage = (message: string) => {
     setIsLoading(true);
     setQuestion("");
 
@@ -32,6 +32,13 @@ function App() {
       });
   };
 
+  useEffect(() => {
+    handleReset();
+    handleMessage(
+      `Salut, j'ai besoin que tu m'aides à décrire un souvenir qui m'est cher.`,
+    );
+  }, []);
+
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">Tales Through Things</h1>
@@ -43,7 +50,7 @@ function App() {
         onChange={(e) => setQuestion(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleMessage();
+            handleMessage(question);
           }
         }}
       />
@@ -54,7 +61,7 @@ function App() {
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           disabled={isLoading || question.trim() === ""}
           onClick={() => {
-            handleMessage();
+            handleMessage(question);
           }}
         >
           {"Send"}
