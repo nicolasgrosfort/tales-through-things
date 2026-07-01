@@ -15,11 +15,10 @@ export async function sendMessage(input: string, conversationId: string) {
   });
 
   const sessionId = res.headers.get("x-hermes-session-id");
-  console.log("Session ID:", sessionId);
-
   const data = await res.json();
+
   const message = data.output.find((o: any) => o.type === "message");
-  return message?.content?.[0]?.text ?? "";
+  return { response: message?.content?.[0]?.text ?? "", sessionID: sessionId };
 }
 
 export const getSession = async (sessionId: string) => {

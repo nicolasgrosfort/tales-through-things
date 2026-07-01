@@ -6,6 +6,7 @@ function App() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionID, setSessionID] = useState<string | undefined>(undefined);
 
   const conversationID = useRef(`user-${Math.floor(Math.random() * 1000)}`);
 
@@ -20,6 +21,7 @@ function App() {
       .then((data) => {
         console.log(data);
         setResponse(data.response);
+        setSessionID(data.sessionID);
       })
       .finally(() => setIsLoading(false));
   };
@@ -71,13 +73,13 @@ function App() {
         </button>
         <button
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleSession(conversationID.current)}
+          onClick={() => handleSession(sessionID)}
         >
           Log Current Session
         </button>
         <button
           className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleClearSessions(conversationID.current)}
+          onClick={() => handleClearSessions(sessionID)}
         >
           Clear Current Session
         </button>
