@@ -24,8 +24,9 @@ function App() {
       .finally(() => setIsLoading(false));
   };
 
-  const handleSession = () => {
-    fetch(`${apiUrl}/session/${conversationID.current}`)
+  const handleSession = (conversationID?: string) => {
+    const query = conversationID ? `?conversationId=${conversationID}` : "";
+    fetch(`${apiUrl}/session${query}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Session data:", data);
@@ -49,21 +50,30 @@ function App() {
       />
       <br />
       <br />
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        disabled={isLoading || question.trim() === ""}
-        onClick={() => {
-          handleMessage();
-        }}
-      >
-        {isLoading ? "Loading..." : "Send"}
-      </button>
-      <button
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        onClick={handleSession}
-      >
-        Log Session
-      </button>
+      <div className="flex gap-2">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          disabled={isLoading || question.trim() === ""}
+          onClick={() => {
+            handleMessage();
+          }}
+        >
+          {isLoading ? "Loading..." : "Send"}
+        </button>
+        <button
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => handleSession(conversationID.current)}
+        >
+          Log Current Session
+        </button>
+        <button
+          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => handleSession()}
+        >
+          Log All Session
+        </button>
+      </div>
+
       <p>{response}</p>
     </main>
   );
