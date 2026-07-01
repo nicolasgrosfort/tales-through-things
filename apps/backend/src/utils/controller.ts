@@ -25,7 +25,7 @@ export async function sendMessage(input: string): Promise<ResponseType> {
         { role: "user", content: input },
       ],
       stream: false,
-      format: z.toJSONSchema(ResponseSchema),
+      response_format: z.toJSONSchema(ResponseSchema),
     }),
   });
 
