@@ -59,7 +59,7 @@ export async function sendMessage(
   const parsedResponse = Response.parse(parsedMessage);
 
   console.log("Parsed response:", parsedResponse);
-  return parsedResponse;
+  return data;
 }
 
 // const HERMES_SYSTEM_PROMPT =
