@@ -13,6 +13,7 @@ function App() {
       .then((data) => {
         console.log(data);
         setResponse(data.response);
+        setQuestion("");
       })
       .finally(() => setIsLoading(false));
   };
@@ -36,6 +37,7 @@ function App() {
       <br />
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        disabled={isLoading || question.trim() === ""}
         onClick={() => {
           handleFetch();
         }}
