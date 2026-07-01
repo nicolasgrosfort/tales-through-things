@@ -30,7 +30,7 @@ export async function sendMessage(input: string): Promise<ResponseType> {
   });
 
   const data = await res.json();
-  const content = data.response;
+  const content = data;
   //   const content = data.response.choices[0].message.content;
   //   const parsed = ResponseSchema.parse(JSON.parse(content));
 
