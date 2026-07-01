@@ -49,16 +49,16 @@ export async function sendMessage(
 
   console.log("Raw response data:", data);
 
-  // Extraction sécurisée du message de l'agent
-  const message = data.output?.find((o: any) => o.type === "message");
-  const rawText = message?.content?.[0]?.text ?? "{}";
+  //   // Extraction sécurisée du message de l'agent
+  //   const message = data.output?.find((o: any) => o.type === "message");
+  //   const rawText = message?.content?.[0]?.text ?? "{}";
 
-  // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
-  const parsedMessage = JSON.parse(rawText);
+  //   // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
+  //   const parsedMessage = JSON.parse(rawText);
 
-  const parsedResponse = Response.parse(parsedMessage);
+  //   const parsedResponse = Response.parse(parsedMessage);
 
-  console.log("Parsed response:", parsedResponse);
+  //   console.log("Parsed response:", parsedResponse);
   return data;
 }
 
