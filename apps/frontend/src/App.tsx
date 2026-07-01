@@ -22,6 +22,16 @@ function App() {
       .finally(() => setIsLoading(false));
   };
 
+  const handleReset = () => {
+    fetch(`${apiUrl}/reset`, { method: "POST" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Reset response from backend:", data);
+        setIsReady(false);
+        setResponse("");
+      });
+  };
+
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">Tales Through Things</h1>
@@ -48,6 +58,12 @@ function App() {
           }}
         >
           {"Send"}
+        </button>
+        <button
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          onClick={handleReset}
+        >
+          Reset
         </button>
         <p>Ready: {isReady.toString()}</p>
       </div>

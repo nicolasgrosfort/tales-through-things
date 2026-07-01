@@ -8,7 +8,27 @@ const ResponseSchema = z.object({
 
 type ResponseType = z.infer<typeof ResponseSchema>;
 
-export async function sendMessage(input: string): Promise<ResponseType> {
+export type ChatMessage = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
+
+const SYSTEM_PROMPT: ChatMessage = {
+  role: "system",
+  content:
+    'Reponse toujours dans ce format : {"ready": boolean, "question": string}.',
+};
+
+export async function sendMessage(
+  input: string,
+  history: ChatMessage[] = [],
+): Promise<{ result: ResponseType; history: ChatMessage[] }> {
+  const messages: ChatMessage[] = [
+    SYSTEM_PROMPT,
+    ...history,
+    { role: "user", content: input },
+  ];
+
   const res = await fetch("http://localhost:8642/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -17,14 +37,7 @@ export async function sendMessage(input: string): Promise<ResponseType> {
     },
     body: JSON.stringify({
       model: "hermes-agent",
-      messages: [
-        {
-          role: "system",
-          content:
-            'Reponse toujours dans ce format : {"ready": boolean, "question": string}.',
-        },
-        { role: "user", content: input },
-      ],
+      messages,
       stream: false,
       response_format: z.toJSONSchema(ResponseSchema),
     }),
@@ -32,7 +45,13 @@ export async function sendMessage(input: string): Promise<ResponseType> {
 
   const data = await res.json();
   const content = data.choices[0].message.content;
-  const parsed = JSON.parse(jsonrepair(content));
+  const parsed = ResponseSchema.parse(JSON.parse(jsonrepair(content)));
 
-  return parsed;
+  const updatedHistory: ChatMessage[] = [
+    ...history,
+    { role: "user", content: input },
+    { role: "assistant", content },
+  ];
+
+  return { result: parsed, history: updatedHistory };
 }
