@@ -1,3 +1,4 @@
+import { jsonrepair } from "jsonrepair";
 import * as z from "zod";
 
 const ResponseSchema = z.object({
@@ -31,7 +32,7 @@ export async function sendMessage(input: string): Promise<ResponseType> {
 
   const data = await res.json();
   const content = data.choices[0].message.content;
-  const parsed = JSON.parse(content);
+  const parsed = JSON.parse(jsonrepair(content));
   //   const parsed = ResponseSchema.parse(JSON.parse(content));
 
   return parsed;
