@@ -27,7 +27,7 @@ export async function sendMessage(
     },
   });
 
-  const response = completion.output_parsed;
+  const response = completion;
   console.log("Parsed response:", response);
   return "response";
 }
