@@ -17,7 +17,7 @@ app.use(express.json());
 app.get("/message", async (req, res) => {
   const question = req.query.question as string;
   const data = await sendMessage(question);
-  res.json({ status: "ok", response: data });
+  res.json({ status: "ok", response: data.question, ready: data.ready });
 });
 
 app.listen(port, "0.0.0.0", () => {
