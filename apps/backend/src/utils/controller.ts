@@ -33,3 +33,24 @@ export const getSession = async (sessionId: string) => {
 
   return await res.json();
 };
+
+export async function clearSessions(conversationId?: string) {
+  let sessions = [];
+
+  if (conversationId) {
+    sessions = [conversationId];
+  } else {
+    const listRes = await fetch("http://localhost:8642/api/sessions", {
+      headers: { Authorization: "Bearer tales-through-things" },
+    });
+
+    sessions = await listRes.json();
+  }
+
+  for (const session of sessions.data ?? sessions) {
+    await fetch(`http://localhost:8642/api/sessions/${session.id}`, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer tales-through-things" },
+    });
+  }
+}

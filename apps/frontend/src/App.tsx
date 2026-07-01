@@ -33,6 +33,15 @@ function App() {
       });
   };
 
+  const handleClearSessions = (conversationID?: string) => {
+    const query = conversationID ? `?conversationId=${conversationID}` : "";
+    fetch(`${apiUrl}/clear-sessions${query}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Clear sessions response:", data);
+      });
+  };
+
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">Tales Through Things</h1>
@@ -67,10 +76,24 @@ function App() {
           Log Current Session
         </button>
         <button
+          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => handleClearSessions(conversationID.current)}
+        >
+          Clear Current Session
+        </button>
+        <button
           className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => handleSession()}
         >
           Log All Session
+        </button>
+        <button
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          onClick={async () => {
+            await fetch(`${apiUrl}/clear-sessions`);
+          }}
+        >
+          Clear All Sessions
         </button>
       </div>
 
