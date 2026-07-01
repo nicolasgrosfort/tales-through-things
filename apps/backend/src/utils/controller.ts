@@ -1,7 +1,8 @@
 import ollama from "ollama";
 import * as z from "zod";
 
-const HERMES_SYSTEM_PROMPT = "";
+const HERMES_SYSTEM_PROMPT =
+  "Réponds uniquement avec un objet JSON contenant les champs 'ready' et 'question'. Ne réponds pas avec du texte brut ou d'autres formats. Assure-toi que le JSON est bien formé.";
 
 const Response = z.object({
   ready: z.boolean(),
@@ -11,7 +12,13 @@ const Response = z.object({
 export async function sendMessage(input: string, conversationId: string) {
   const response = await ollama.chat({
     model: "gemma4:e4b-mlx",
-    messages: [{ role: "user", content: input }],
+    messages: [
+      {
+        role: "system",
+        content: HERMES_SYSTEM_PROMPT,
+      },
+      { role: "user", content: input },
+    ],
     format: z.toJSONSchema(Response),
   });
 
