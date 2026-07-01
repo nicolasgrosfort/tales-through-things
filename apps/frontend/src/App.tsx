@@ -9,12 +9,12 @@ function App() {
 
   const conversationID = useRef(`user-${Math.floor(Math.random() * 1000)}`);
 
-  const handleFetch = () => {
+  const handleMessage = () => {
     setIsLoading(true);
     setQuestion("");
 
     fetch(
-      `${apiUrl}?question=${encodeURIComponent(question)}&conversationId=${conversationID.current}`,
+      `${apiUrl}/message?question=${encodeURIComponent(question)}&conversationId=${conversationID.current}`,
     )
       .then((response) => response.json())
       .then((data) => {
@@ -22,6 +22,14 @@ function App() {
         setResponse(data.response);
       })
       .finally(() => setIsLoading(false));
+  };
+
+  const handleSession = () => {
+    fetch(`${apiUrl}/session/${conversationID.current}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Session data:", data);
+      });
   };
 
   return (
@@ -35,7 +43,7 @@ function App() {
         onChange={(e) => setQuestion(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleFetch();
+            handleMessage();
           }
         }}
       />
@@ -45,10 +53,16 @@ function App() {
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         disabled={isLoading || question.trim() === ""}
         onClick={() => {
-          handleFetch();
+          handleMessage();
         }}
       >
         {isLoading ? "Loading..." : "Send"}
+      </button>
+      <button
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        onClick={handleSession}
+      >
+        Log Session
       </button>
       <p>{response}</p>
     </main>
