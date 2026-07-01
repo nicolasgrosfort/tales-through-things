@@ -8,12 +8,13 @@ function App() {
 
   const handleFetch = () => {
     setIsLoading(true);
+    setQuestion("");
+
     fetch(`${apiUrl}?question=${encodeURIComponent(question)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
         setResponse(data.response);
-        setQuestion("");
       })
       .finally(() => setIsLoading(false));
   };

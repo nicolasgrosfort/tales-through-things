@@ -3,7 +3,7 @@ import express from "express";
 import OpenAI from "openai";
 import { getLocalIp } from "./utils/helpers";
 
-const HERMES_SYSTEM_PROMPT = `Tu est un chien !`;
+const HERMES_SYSTEM_PROMPT = "";
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
