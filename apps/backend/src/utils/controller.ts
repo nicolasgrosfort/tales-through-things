@@ -12,7 +12,7 @@ export async function sendMessage(input: string, conversationId: string) {
       input,
       conversation: conversationId,
       instructions: `Réponds uniquement avec un JSON valide, sans texte autour, respectant exactement ce schéma :
-{"name": string, "mood": string, "message": string}`,
+{"ready": boolean, "question": string}`,
     }),
   });
 
