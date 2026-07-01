@@ -30,17 +30,18 @@ export async function sendMessage(
       //     "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
 
       // Force nativement la structure JSON au niveau de l'API Hermes
-      response_format: {
-        type: "json_object",
-        schema: {
-          type: "object",
-          properties: {
-            ready: { type: "boolean" },
-            question: { type: "string" },
-          },
-          required: ["ready", "question"],
-        },
-      },
+      //   response_format: {
+      //     type: "json_object",
+      //     schema: {
+      //       type: "object",
+      //       properties: {
+      //         ready: { type: "boolean" },
+      //         question: { type: "string" },
+      //       },
+      //       required: ["ready", "question"],
+      //     },
+      //   },
+      format: z.toJSONSchema(Response),
     }),
   });
 
