@@ -18,11 +18,8 @@ app.use(express.json());
 app.get("/message", async (req, res) => {
   const question = req.query.question as string;
   const conversationId = req.query.conversationId as string;
-  const { ready, question: response } = await sendMessage(
-    question,
-    conversationId,
-  );
-  res.json({ status: "ok", response, ready });
+  const { data } = await sendMessage(question, conversationId);
+  res.json({ status: "ok", response: data });
 });
 
 app.get("/session", async (req, res) => {
