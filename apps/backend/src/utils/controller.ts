@@ -11,7 +11,7 @@ export async function sendMessage(
   input: string,
   conversationId: string,
 ): Promise<ResponseType> {
-  const res = await fetch("http://localhost:8642/v1/responses", {
+  const res = await fetch("http://localhost:8642/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: "Bearer tales-through-things",
@@ -19,10 +19,16 @@ export async function sendMessage(
     },
     body: JSON.stringify({
       model: "hermes-agent",
-      input,
-      conversation: conversationId,
-      instructions:
-        "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
+      messages: [
+        { role: "system", content: "You are a Python expert." },
+        { role: "user", content: "Write a fibonacci function" },
+      ],
+      stream: false,
+      //   input,
+      //   conversation: conversationId,
+      //   instructions:
+      //     "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
+
       // Force nativement la structure JSON au niveau de l'API Hermes
       response_format: {
         type: "json_object",
