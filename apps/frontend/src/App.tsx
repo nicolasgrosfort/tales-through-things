@@ -6,6 +6,7 @@ function App() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   const handleMessage = () => {
     setIsLoading(true);
@@ -14,8 +15,8 @@ function App() {
     fetch(`${apiUrl}/message?question=${encodeURIComponent(question)}`)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
-        // setResponse(data.response);
+        setIsReady(data.ready);
+        setResponse(data.response);
       })
       .finally(() => setIsLoading(false));
   };
@@ -50,6 +51,7 @@ function App() {
       </div>
 
       <p>{response}</p>
+      <p>Ready: {isReady.toString()}</p>
     </main>
   );
 }
