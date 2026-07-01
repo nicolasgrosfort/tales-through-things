@@ -3,6 +3,7 @@ import { useState } from "react";
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
   const [question, setQuestion] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <>
@@ -17,12 +18,14 @@ function App() {
       <br />
       <button
         onClick={() => {
+          setIsLoading(true);
           fetch(`${apiUrl}?question=${encodeURIComponent(question)}`)
             .then((response) => response.json())
-            .then((data) => console.log(data));
+            .then((data) => console.log(data))
+            .finally(() => setIsLoading(false));
         }}
       >
-        Test API
+        {isLoading ? "Loading..." : "Send"}
       </button>
     </>
   );
