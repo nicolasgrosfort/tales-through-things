@@ -1,5 +1,36 @@
 // import ollama from "ollama";
-// import * as z from "zod";
+import { OpenAI } from "openai";
+import * as z from "zod";
+
+const openai = new OpenAI({
+  baseURL: "http://localhost:8642/v1",
+  apiKey: "tales-through-things",
+});
+
+const Response = z.object({
+  ready: z.boolean(),
+  question: z.string(),
+});
+
+export async function sendMessage(
+  message: string,
+  conversationId: string,
+): Promise<string> {
+  const completion = await openai.responses.parse({
+    model: "hermes-agent",
+    input: [
+      { role: "system", content: "" },
+      { role: "user", content: message },
+    ],
+    text: {
+      format: { type: "json_object" },
+    },
+  });
+
+  const response = completion.output_parsed;
+  console.log("Parsed response:", response);
+  return "response";
+}
 
 // const HERMES_SYSTEM_PROMPT =
 //   "Réponds uniquement avec un objet JSON contenant les champs 'ready' et 'question'. Ne réponds pas avec du texte brut ou d'autres formats. Assure-toi que le JSON est bien formé.";
@@ -29,48 +60,48 @@
 //   return parsedResponse;
 // }
 
-export async function sendMessage(input: string, conversationId: string) {
-  const res = await fetch("http://localhost:8642/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer tales-through-things",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "hermes-agent",
-      input,
-      conversation: conversationId,
-      instructions:
-        "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
-      // Force nativement la structure JSON au niveau de l'API Hermes
-      response_format: {
-        type: "json_object",
-        schema: {
-          type: "object",
-          properties: {
-            ready: { type: "boolean" },
-            question: { type: "string" },
-          },
-          required: ["ready", "question"],
-        },
-      },
-    }),
-  });
+// export async function sendMessage(input: string, conversationId: string) {
+//   const res = await fetch("http://localhost:8642/v1/responses", {
+//     method: "POST",
+//     headers: {
+//       Authorization: "Bearer tales-through-things",
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       model: "hermes-agent",
+//       input,
+//       conversation: conversationId,
+//       instructions:
+//         "Tu es un assistant de validation. Remplis le schéma de réponse demandé.",
+//       // Force nativement la structure JSON au niveau de l'API Hermes
+//       response_format: {
+//         type: "json_object",
+//         schema: {
+//           type: "object",
+//           properties: {
+//             ready: { type: "boolean" },
+//             question: { type: "string" },
+//           },
+//           required: ["ready", "question"],
+//         },
+//       },
+//     }),
+//   });
 
-  const sessionId = res.headers.get("x-hermes-session-id");
-  const data = await res.json();
+//   const sessionId = res.headers.get("x-hermes-session-id");
+//   const data = await res.json();
 
-  console.log("Raw response data:", data);
+//   console.log("Raw response data:", data);
 
-  // Extraction sécurisée du message de l'agent
-  //   const message = data.output?.find((o: any) => o.type === "message");
-  //   const rawText = message?.content?.[0]?.text ?? "{}";
+//   // Extraction sécurisée du message de l'agent
+//   //   const message = data.output?.find((o: any) => o.type === "message");
+//   //   const rawText = message?.content?.[0]?.text ?? "{}";
 
-  //   // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
-  //   const parsedMessage = JSON.parse(rawText);
+//   //   // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
+//   //   const parsedMessage = JSON.parse(rawText);
 
-  return data;
-}
+//   return data;
+// }
 
 export const getSession = async (sessionId: string) => {
   const apiUrl = sessionId
