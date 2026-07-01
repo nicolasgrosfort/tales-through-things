@@ -69,9 +69,7 @@ export async function sendMessage(input: string, conversationId: string) {
   //   // Plus besoin de extractJson complexe si l'API renvoie du JSON pur
   //   const parsedMessage = JSON.parse(rawText);
 
-  return {
-    data: JSON.stringify(data),
-  };
+  return data;
 }
 
 export const getSession = async (sessionId: string) => {

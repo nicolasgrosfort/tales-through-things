@@ -18,7 +18,7 @@ app.use(express.json());
 app.get("/message", async (req, res) => {
   const question = req.query.question as string;
   const conversationId = req.query.conversationId as string;
-  const { data } = await sendMessage(question, conversationId);
+  const data = await sendMessage(question, conversationId);
   res.json({ status: "ok", response: data });
 });
 

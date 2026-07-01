@@ -20,7 +20,7 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        setResponse(data.response);
+        // setResponse(data.response);
         setSessionID(data.sessionID);
       })
       .finally(() => setIsLoading(false));
