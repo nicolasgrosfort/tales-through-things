@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
+
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const conversationID = useRef(`user-${Math.floor(Math.random() * 1000)}`);
 
   const handleFetch = () => {
     setIsLoading(true);
     setQuestion("");
 
-    fetch(`${apiUrl}?question=${encodeURIComponent(question)}`)
+    fetch(
+      `${apiUrl}?question=${encodeURIComponent(question)}&conversationId=${conversationID.current}`,
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log(data);

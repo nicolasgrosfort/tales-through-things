@@ -13,16 +13,23 @@ const openai = new OpenAI({
   apiKey: "tales-through-things",
 });
 
-export async function askHermes(message: string): Promise<string> {
-  const completion = await openai.chat.completions.create({
-    model: "hermes-agent",
-    messages: [
-      { role: "system", content: HERMES_SYSTEM_PROMPT },
-      { role: "user", content: message },
-    ],
+async function askHermes(input: string, conversationId: string) {
+  const res = await fetch("http://localhost:8642/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer tales-through-things",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "hermes-agent",
+      input,
+      conversation: conversationId, // ex: "user-42" ou l'id de ta session
+    }),
   });
 
-  return completion.choices[0].message.content ?? "";
+  const data = await res.json();
+  const message = data.output.find((o: any) => o.type === "message");
+  return message?.content?.[0]?.text ?? "";
 }
 
 app.use(
@@ -35,7 +42,8 @@ app.use(express.json());
 
 app.get("/", async (req, res) => {
   const question = req.query.question as string;
-  const response = await askHermes(question);
+  const conversationId = req.query.conversationId as string;
+  const response = await askHermes(question, conversationId);
   res.json({ status: "ok", response });
 });
 
