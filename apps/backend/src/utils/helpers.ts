@@ -14,6 +14,6 @@ export const getLocalIp = (): string => {
 
 export const extractJson = (text: string) => {
   const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error("No JSON found in response");
+  if (!match) throw new Error("No JSON found in response: " + text);
   return JSON.parse(match[0]);
 };
