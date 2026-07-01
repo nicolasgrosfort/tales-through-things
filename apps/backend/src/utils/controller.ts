@@ -11,6 +11,8 @@ export async function sendMessage(input: string, conversationId: string) {
       model: "hermes-agent",
       input,
       conversation: conversationId,
+      instructions: `Réponds uniquement avec un JSON valide, sans texte autour, respectant exactement ce schéma :
+{"name": string, "mood": string, "message": string}`,
     }),
   });
 
