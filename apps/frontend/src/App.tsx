@@ -46,12 +46,12 @@ function App() {
             handleMessage();
           }}
         >
-          {isLoading ? "Loading..." : "Send"}
+          {"Send"}
         </button>
+        <p>Ready: {isReady.toString()}</p>
       </div>
 
-      <p>{response}</p>
-      <p>Ready: {isReady.toString()}</p>
+      <p>{isLoading ? "Loading..." : response}</p>
     </main>
   );
 }
