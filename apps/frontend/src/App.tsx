@@ -33,8 +33,8 @@ function App() {
       });
   };
 
-  const handleClearSessions = (conversationID?: string) => {
-    const query = conversationID ? `?conversationId=${conversationID}` : "";
+  const handleClearSessions = (sessionID?: string) => {
+    const query = sessionID ? `?sessionId=${sessionID}` : "";
     fetch(`${apiUrl}/clear-sessions${query}`)
       .then((response) => response.json())
       .then((data) => {

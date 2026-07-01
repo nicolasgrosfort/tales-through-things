@@ -29,8 +29,8 @@ app.get("/session", async (req, res) => {
 });
 
 app.get("/clear-sessions", async (req, res) => {
-  const conversationId = req.query.conversationId as string;
-  await clearSessions(conversationId);
+  const sessionId = req.query.sessionId as string;
+  await clearSessions(sessionId);
   res.json({ status: "ok" });
 });
 

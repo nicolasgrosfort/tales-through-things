@@ -14,6 +14,9 @@ export async function sendMessage(input: string, conversationId: string) {
     }),
   });
 
+  const sessionId = res.headers.get("x-hermes-session-id");
+  console.log("Session ID:", sessionId);
+
   const data = await res.json();
   const message = data.output.find((o: any) => o.type === "message");
   return message?.content?.[0]?.text ?? "";
@@ -34,11 +37,11 @@ export const getSession = async (sessionId: string) => {
   return await res.json();
 };
 
-export async function clearSessions(conversationId?: string) {
+export async function clearSessions(sessionID?: string) {
   let sessions = [];
 
-  if (conversationId) {
-    sessions = [conversationId];
+  if (sessionID) {
+    sessions = [sessionID];
   } else {
     const listRes = await fetch("http://localhost:8642/api/sessions", {
       headers: { Authorization: "Bearer tales-through-things" },
