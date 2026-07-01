@@ -28,6 +28,7 @@ app.get("/message", async (req, res) => {
     status: "ok",
     response: result.question,
     ready: result.ready,
+    history: updatedHistory,
   });
 });
 
