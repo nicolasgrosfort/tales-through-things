@@ -1,10 +1,11 @@
 # Tales Through Things
 
-## Package Manager
+## Dependencies
+
+### Yarn
 
 The project uses yarn. To install it, run the following command:
 
 ```bash
-    npm install -g yarn
+    brew install yarn
 ```
-
