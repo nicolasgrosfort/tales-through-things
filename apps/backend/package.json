@@ -12,8 +12,6 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonrepair": "^3.14.1",
-    "ollama": "^0.6.3",
-    "openai": "^6.45.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
