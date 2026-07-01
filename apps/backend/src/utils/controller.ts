@@ -31,7 +31,7 @@ export async function sendMessage(input: string): Promise<ResponseType> {
 
   const data = await res.json();
   const content = data.choices[0].message.content;
-  //   const parsed = ResponseSchema.parse(JSON.parse(content));
+  const parsed = ResponseSchema.parse(JSON.parse(content));
 
-  return content;
+  return parsed;
 }
