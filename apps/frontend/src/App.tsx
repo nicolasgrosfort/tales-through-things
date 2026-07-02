@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
+
+  const inactivityTimer = useRef<number | null>(null);
 
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
@@ -11,7 +13,20 @@ function App() {
   const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
 
+  const startInactivityTimer = () => {
+    if (inactivityTimer.current) {
+      clearTimeout(inactivityTimer.current);
+    }
+
+    inactivityTimer.current = setTimeout(() => {
+      console.log("Inactivity timer triggered. Resetting session.");
+      handleReset();
+    }, 60_000);
+  };
+
   const handleMessage = (message: string) => {
+    startInactivityTimer();
+
     setIsLoading(true);
     setQuestion("");
 
@@ -29,6 +44,11 @@ function App() {
   };
 
   const handleReset = () => {
+    if (inactivityTimer.current) {
+      clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = null;
+    }
+
     fetch(`${apiUrl}/reset`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
@@ -40,13 +60,6 @@ function App() {
         setResponse("");
       });
   };
-
-  // useEffect(() => {
-  //   handleReset();
-  //   handleMessage(
-  //     `Salut, j'ai besoin que tu m'aides à décrire un souvenir qui m'est cher.`,
-  //   );
-  // }, []);
 
   return (
     <main className="p-4">
