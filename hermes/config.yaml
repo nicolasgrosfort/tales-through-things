@@ -1,0 +1,41 @@
+model:
+  default: gpt-5.5
+  provider: openai-codex
+agent:
+  verify_on_stop: false
+terminal:
+  backend: local
+  cwd: /workspace
+web:
+  backend: ddgs
+  use_gateway: false
+display:
+  tool_progress: all
+_config_version: 33
+plugins:
+  enabled: []
+platform_toolsets:
+  cli:
+    - browser
+    - clarify
+    - code_execution
+    - computer_use
+    - cronjob
+    - delegation
+    - file
+    - image_gen
+    - memory
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
+known_plugin_toolsets:
+  cli:
+    - spotify
+image_gen:
+  provider: openai-codex
+  use_gateway: false
+  model: gpt-image-2-medium

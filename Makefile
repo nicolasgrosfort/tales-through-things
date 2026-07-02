@@ -1,10 +1,12 @@
 .PHONY: init-frontend dev-frontend init-backend dev-backend init dev dev-agent init-agent chat-agent log-agent
 
 # Agent
-init-agent: ; cp hermes/workspace/.env.example hermes/workspace/.env && docker compose up -d hermes && docker exec -it hermes hermes setup
+init-agent: ; docker compose up -d hermes && docker exec -it hermes hermes setup
 chat-agent: ; docker exec -it hermes hermes --tui
 dev-agent: ; docker compose up -d hermes
 log-agent: ; docker compose logs -f hermes
+config-agent: ; docker exec hermes hermes config
+setup-agent: ; docker exec hermes hermes setup
 status-agent: ; docker exec hermes hermes status
 
 # Backend
