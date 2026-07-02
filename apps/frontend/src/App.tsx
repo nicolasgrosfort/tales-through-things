@@ -1,9 +1,11 @@
 import { useRef, useState } from "react";
+import { RESET_DELAY } from "./utils/config";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
 
   const inactivityTimer = useRef<number | null>(null);
+  const countdownInterval = useRef<number | null>(null);
 
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
@@ -12,16 +14,32 @@ function App() {
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
+  const [countdown, setCountdown] = useState(RESET_DELAY);
 
   const startInactivityTimer = () => {
     if (inactivityTimer.current) {
       clearTimeout(inactivityTimer.current);
     }
 
-    inactivityTimer.current = setTimeout(() => {
-      console.log("Inactivity timer triggered. Resetting session.");
+    if (countdownInterval.current) {
+      clearInterval(countdownInterval.current);
+    }
+
+    setCountdown(RESET_DELAY);
+
+    countdownInterval.current = window.setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    inactivityTimer.current = window.setTimeout(() => {
       handleReset();
-    }, 60_000);
+    }, RESET_DELAY * 1000);
   };
 
   const handleMessage = (message: string) => {
@@ -48,6 +66,13 @@ function App() {
       clearTimeout(inactivityTimer.current);
       inactivityTimer.current = null;
     }
+
+    if (countdownInterval.current) {
+      clearInterval(countdownInterval.current);
+      countdownInterval.current = null;
+    }
+
+    setCountdown(RESET_DELAY);
 
     fetch(`${apiUrl}/reset`, { method: "POST" })
       .then((response) => response.json())
@@ -104,6 +129,9 @@ function App() {
       <p className="text-sm font-mono">Objet: {object}</p>
       <p className="text-sm font-mono">Username: {username}</p>
       <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
+      <p className="text-sm text-gray-500">
+        Reset automatique dans {countdown}s
+      </p>
     </main>
   );
 }
