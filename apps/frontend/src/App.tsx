@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function App() {
   const apiUrl = `http://${window.location.hostname}:3001`;
@@ -8,6 +8,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [haiku, setHaiku] = useState("");
+  const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
 
   const handleMessage = (message: string) => {
@@ -21,6 +22,7 @@ function App() {
         setIsReady(data.ready);
         setHaiku(data.haiku);
         setObject(data.object);
+        setUsername(data.username);
         setResponse(data.response);
       })
       .finally(() => setIsLoading(false));
@@ -32,16 +34,19 @@ function App() {
       .then((data) => {
         console.log("Reset response from backend:", data);
         setIsReady(false);
+        setHaiku("");
+        setUsername("");
+        setObject("");
         setResponse("");
       });
   };
 
-  useEffect(() => {
-    handleReset();
-    handleMessage(
-      `Salut, j'ai besoin que tu m'aides à décrire un souvenir qui m'est cher.`,
-    );
-  }, []);
+  // useEffect(() => {
+  //   handleReset();
+  //   handleMessage(
+  //     `Salut, j'ai besoin que tu m'aides à décrire un souvenir qui m'est cher.`,
+  //   );
+  // }, []);
 
   return (
     <main className="p-4">
@@ -84,6 +89,7 @@ function App() {
 
       <p className="text-sm font-mono">Haiku: {haiku}</p>
       <p className="text-sm font-mono">Objet: {object}</p>
+      <p className="text-sm font-mono">Username: {username}</p>
       <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
     </main>
   );

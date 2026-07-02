@@ -30,6 +30,7 @@ Le format de réponse doit toujours être le suivant (json) :
 {
     haiku: string,
     object: string, 
+    username: string,
     question: string,
     ready: boolean
 }
@@ -49,8 +50,6 @@ Structure du fichier :
     username: string,
     haiku: string,
     object: string, 
-    question: string,
-    ready: boolean
 }
 
 # Critère de réponse

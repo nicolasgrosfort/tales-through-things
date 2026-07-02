@@ -1,0 +1,1 @@
+For the memory-haiku project, do not use stored user names unless the current conversation provides the name; ask for the person's first name when it is not present in the conversation.
