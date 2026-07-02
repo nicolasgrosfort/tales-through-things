@@ -1,13 +1,20 @@
-.PHONY: init-frontend dev-frontend init-backend dev-backend init dev
+.PHONY: init-frontend dev-frontend init-backend dev-backend init dev dev-agent init-agent chat-agent log-agent
 
-# Frontend
-init-frontend: ; cd apps/frontend && yarn install
-dev-frontend: ; cd apps/frontend && yarn dev
+# Agent
+init-agent: ; cp hermes/workspace/.env.example hermes/workspace/.env && docker compose up -d hermes && docker exec -it hermes hermes setup
+chat-agent: ; docker exec -it hermes hermes --tui
+dev-agent: ; docker compose up -d hermes
+log-agent: ; docker compose logs -f hermes
+status-agent: ; docker exec hermes hermes status
 
 # Backend
 init-backend: ; cd apps/backend && yarn install
 dev-backend: ; cd apps/backend && yarn dev
 
 # Common
-init: init-frontend init-backend
-dev: ; $(MAKE) -j2 dev-frontend dev-backend
+init: init-frontend init-backend init-agent
+dev: ; $(MAKE) -j2 dev-frontend dev-backend dev-agent
+
+# Frontend
+init-frontend: ; cd apps/frontend && yarn install
+dev-frontend: ; cd apps/frontend && yarn dev

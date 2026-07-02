@@ -1,0 +1,20 @@
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+    command: gateway run
+    ports:
+      - "8642:8642" # API
+      - "8644:8644" # Webhook
+    volumes:
+      - hermes:/opt/data
+      - ./hermes/SOUL.md:/opt/data/SOUL.md
+      - ./hermes/workspace:/workspace:rw
+    environment:
+      - API_SERVER_ENABLED=true
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_KEY=${API_SERVER_KEY}
+
+volumes:
+  hermes:
