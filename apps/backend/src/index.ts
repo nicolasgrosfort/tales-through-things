@@ -28,6 +28,8 @@ app.get("/message", async (req, res) => {
     status: "ok",
     response: result.question,
     ready: result.ready,
+    haiku: result.haiku,
+    object: result.object,
     history: updatedHistory,
   });
 });

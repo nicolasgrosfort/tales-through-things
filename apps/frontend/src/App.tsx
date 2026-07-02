@@ -7,6 +7,8 @@ function App() {
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [haiku, setHaiku] = useState("");
+  const [object, setObject] = useState("");
 
   const handleMessage = (message: string) => {
     setIsLoading(true);
@@ -17,6 +19,8 @@ function App() {
       .then((data) => {
         console.log("Response from backend:", data);
         setIsReady(data.ready);
+        setHaiku(data.haiku);
+        setObject(data.object);
         setResponse(data.response);
       })
       .finally(() => setIsLoading(false));
@@ -71,11 +75,16 @@ function App() {
           onClick={handleReset}
         >
           Reset
-        </button>
-        <p>Ready: {isReady.toString()}</p>
+        </button>{" "}
       </div>
 
-      <p>{isLoading ? "Loading..." : response}</p>
+      <p className="text-md font-mono mt-4 mb-4">
+        {isLoading ? "Loading..." : response}
+      </p>
+
+      <p className="text-sm font-mono">Haiku: {haiku}</p>
+      <p className="text-sm font-mono">Objet: {object}</p>
+      <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
     </main>
   );
 }

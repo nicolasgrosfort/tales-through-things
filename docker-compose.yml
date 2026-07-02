@@ -10,8 +10,10 @@ services:
     volumes:
       - hermes:/opt/data
       - ./hermes/SOUL.md:/opt/data/SOUL.md
+      - ./hermes/AGENTS.md:/opt/data/AGENTS.md
       - ./hermes/config.yaml:/opt/data/config.yaml
       - ./hermes/workspace:/workspace:rw
+      - ./hermes/memories:/opt/data/memories:rw
     environment:
       - API_SERVER_ENABLED=true
       - API_SERVER_HOST=0.0.0.0

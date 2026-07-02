@@ -1,19 +1,8 @@
 import { jsonrepair } from "jsonrepair";
 import * as z from "zod";
 import { SYSTEM_PROMPT } from "./config";
-import { trimHistory } from "./helpers";
-
-const ResponseSchema = z.object({
-  ready: z.boolean(),
-  question: z.string(),
-});
-
-type ResponseType = z.infer<typeof ResponseSchema>;
-
-export type ChatMessage = {
-  role: "system" | "user" | "assistant";
-  content: string;
-};
+import { ResponseSchema } from "./schemas";
+import { ChatMessage, ResponseType } from "./types";
 
 export async function sendMessage(
   input: string,
@@ -41,13 +30,15 @@ export async function sendMessage(
 
   const data = await res.json();
   const content = data.choices[0].message.content;
+  console.log(content);
   const parsed = ResponseSchema.parse(JSON.parse(jsonrepair(content)));
 
-  const updatedHistory: ChatMessage[] = trimHistory([
+  const updatedHistory: ChatMessage[] = [
     ...history,
     { role: "user", content: input },
     { role: "assistant", content },
-  ]);
+  ];
 
   return { result: parsed, history: updatedHistory };
 }
+export { ChatMessage };
