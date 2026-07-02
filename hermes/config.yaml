@@ -1,13 +1,18 @@
 model:
   default: gpt-5.5
   provider: openai-codex
+  base_url: https://chatgpt.com/backend-api/codex
 agent:
+  max_turns: 150
   verify_on_stop: false
 terminal:
   backend: local
   cwd: /workspace
 web:
   backend: ddgs
+  use_gateway: false
+browser:
+  cloud_provider: local
   use_gateway: false
 display:
   tool_progress: all
@@ -29,7 +34,6 @@ platform_toolsets:
     - skills
     - terminal
     - todo
-    - tts
     - vision
     - web
 known_plugin_toolsets:
@@ -39,3 +43,5 @@ image_gen:
   provider: openai-codex
   use_gateway: false
   model: gpt-image-2-medium
+session_reset:
+  mode: none
