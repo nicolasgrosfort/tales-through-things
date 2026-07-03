@@ -11,7 +11,7 @@ from diffusers.pipelines.flux2.pipeline_flux2_klein import Flux2KleinPipeline
 MODEL_ID = os.getenv("FLUX_MODEL", "black-forest-labs/FLUX.2-klein-4B")
 
 BASE_DIR = Path(__file__).parent
-OUTPUT_DIR = BASE_DIR / "outputs"
+OUTPUT_DIR = BASE_DIR / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI()
