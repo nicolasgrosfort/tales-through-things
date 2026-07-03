@@ -6,7 +6,8 @@ export
 # - - - - - - - - - -
 
 # Hermes
-init-agent: ; cp .env.example .env && docker compose up -d hermes && docker exec -it hermes hermes setup
+init-agent: ; cp .env.example .env && docker compose up -d hermes && docker exec -it hermes hermes setup && cd hermes/mcp/memorize && npm install
+sh-agent: ; docker exec -it hermes sh
 chat-agent: ; docker exec -it hermes hermes --tui
 dev-agent: ; docker compose up -d hermes
 log-agent: ; docker compose logs -f hermes
@@ -63,8 +64,9 @@ dev-sharp:
 		--port ${SHARP_PORT} \
 		--reload
 
+
 # - - - - - - - - - -
 
 # Common
-init: init-frontend init-backend init-agent init-whisper init-flux
-dev: ; $(MAKE) -j5 dev-frontend dev-backend dev-agent dev-whisper dev-flux
+init: init-frontend init-backend init-agent init-whisper init-flux init-sharp 
+dev: ; $(MAKE) -j6 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp

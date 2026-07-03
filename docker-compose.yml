@@ -13,6 +13,7 @@ services:
       - ./hermes/config.yaml:/opt/data/config.yaml
       - ./hermes/memories:/opt/data/memories:rw
       - ./hermes/workspace:/opt/data/workspace:rw
+      - ./hermes/mcp/memorize:/opt/data/mcp/memorize:rw
     env_file:
       - .env
 

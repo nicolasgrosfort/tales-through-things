@@ -45,6 +45,15 @@ image_gen:
   model: gpt-image-2-medium
 session_reset:
   mode: none
+mcp_servers:
+  memorize:
+    command: npm
+    args:
+      - --prefix
+      - /opt/data/mcp/memorize
+      - run
+      - dev
+    enabled: true
 
 # ── Security ──────────────────────────────────────────────────────────
 # Secret redaction is ON by default — strings that look like API keys,
