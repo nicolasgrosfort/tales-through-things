@@ -13,6 +13,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [prompt, setPrompt] = useState("");
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
@@ -69,6 +70,7 @@ function App() {
         setIsReady(data.ready);
         setHaiku(data.haiku);
         setObject(data.object);
+        setPrompt(data.prompt);
         setUsername(data.username);
         setResponse(data.response);
       })
@@ -89,6 +91,7 @@ function App() {
         setHaiku("");
         setUsername("");
         setObject("");
+        setPrompt("");
         setResponse("");
       });
   };
@@ -154,6 +157,7 @@ function App() {
       <p className="text-sm font-mono">Haiku: {haiku}</p>
       <p className="text-sm font-mono">Objet: {object}</p>
       <p className="text-sm font-mono">Username: {username}</p>
+      <p className="text-sm font-mono">Prompt: {prompt}</p>
       <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
       <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
       <p className="text-sm text-gray-500">

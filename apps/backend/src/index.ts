@@ -31,6 +31,7 @@ app.get("/message", async (req, res) => {
     ready: result.ready,
     haiku: result.haiku,
     username: result.username,
+    prompt: result.prompt,
     object: result.object,
     history: updatedHistory,
   });

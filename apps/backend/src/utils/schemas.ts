@@ -5,5 +5,6 @@ export const ResponseSchema = z.object({
   question: z.string(),
   username: z.string(),
   haiku: z.string(),
+  prompt: z.string(),
   object: z.string(),
 });
