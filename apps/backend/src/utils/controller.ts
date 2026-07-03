@@ -52,8 +52,8 @@ export async function generateImage(prompt: string): Promise<string> {
   });
 
   const data = await res.json();
-  const filename = data.filename;
-  return filename;
+  const path = data.path;
+  return path;
 }
 
 export async function generateModel(

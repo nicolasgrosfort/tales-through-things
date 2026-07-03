@@ -15,6 +15,7 @@ config-agent: ; docker exec hermes hermes config
 setup-agent: ; docker exec hermes hermes setup
 status-agent: ; docker exec hermes hermes status
 sessions-agent: ; docker exec hermes hermes sessions list
+restart-agent: ; docker compose restart hermes
 
 # - - - - - - - - - -
 

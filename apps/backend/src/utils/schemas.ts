@@ -6,5 +6,6 @@ export const ResponseSchema = z.object({
   username: z.string(),
   haiku: z.string(),
   prompt: z.string(),
+  image_url: z.string(),
   object: z.string(),
 });

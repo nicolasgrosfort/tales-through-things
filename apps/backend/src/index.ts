@@ -31,6 +31,7 @@ app.get("/message", async (req, res) => {
     ready: result.ready,
     haiku: result.haiku,
     username: result.username,
+    image_url: result.image_url,
     prompt: result.prompt,
     object: result.object,
     history: updatedHistory,
@@ -47,8 +48,8 @@ app.post("/image", async (req, res) => {
   const prompt =
     (req.query.prompt as string) ||
     "Un chat qui discute avec une intelligence artificielle";
-  const filename = await generateImage(prompt);
-  res.json({ status: "ok", filename });
+  const path = await generateImage(prompt);
+  res.json({ status: "ok", path });
 });
 
 app.listen(port, "0.0.0.0", () => {

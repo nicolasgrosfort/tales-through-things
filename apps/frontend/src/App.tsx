@@ -13,6 +13,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const [prompt, setPrompt] = useState("");
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
@@ -71,6 +72,7 @@ function App() {
         setHaiku(data.haiku);
         setObject(data.object);
         setPrompt(data.prompt);
+        setImageUrl(data.image_url);
         setUsername(data.username);
         setResponse(data.response);
       })
@@ -90,6 +92,7 @@ function App() {
         setIsReady(false);
         setHaiku("");
         setUsername("");
+        setImageUrl("");
         setObject("");
         setPrompt("");
         setResponse("");
@@ -163,6 +166,13 @@ function App() {
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
       </p>
+
+      <div className="mt-4">
+        <img
+          src={`../../../models/flux/output/4913a4ee88884fe890daf6d69c833278.png`}
+          alt="Generated"
+        />
+      </div>
     </main>
   );
 }
