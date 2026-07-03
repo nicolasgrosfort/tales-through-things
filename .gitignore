@@ -1,6 +1,7 @@
 # Global
 .env
 __pycache__
+sharp
 
 # Logs
 logs

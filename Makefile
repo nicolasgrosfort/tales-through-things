@@ -51,6 +51,18 @@ dev-flux:
 		--port $(FLUX_PORT) \
 		--reload
 
+#ML-Sharp
+init-sharp:
+	cd models/ml-sharp && git clone https://github.com/apple/ml-sharp sharp || true
+	conda create -n sharp python=3.13 -y
+	cd models/ml-sharp/sharp && conda run -n sharp pip install -r requirements.txt
+	conda run -n sharp pip install fastapi "uvicorn[standard]" python-multipart
+dev-sharp:
+	conda run -n sharp uvicorn models.ml-sharp.api:app \
+		--host 0.0.0.0 \
+		--port ${SHARP_PORT} \
+		--reload
+
 # - - - - - - - - - -
 
 # Common
