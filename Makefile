@@ -41,8 +41,18 @@ dev-whisper:
 		--port $(WHISPER_PORT) \
 		--reload --reload
 
+## Flux
+init-flux:
+	conda create -n flux python=3.11 -y
+	conda run -n flux pip install git+https://github.com/huggingface/diffusers.git transformers accelerate safetensors fastapi "uvicorn[standard]" python-multipart torch torchvision pillow
+dev-flux:
+	conda run -n flux uvicorn models.flux.api:app \
+		--host 0.0.0.0 \
+		--port $(FLUX_PORT) \
+		--reload
+
 # - - - - - - - - - -
 
 # Common
-init: init-frontend init-backend init-agent init-whisper
-dev: ; $(MAKE) -j4 dev-frontend dev-backend dev-agent dev-whisper
+init: init-frontend init-backend init-agent init-whisper init-flux
+dev: ; $(MAKE) -j5 dev-frontend dev-backend dev-agent dev-whisper dev-flux

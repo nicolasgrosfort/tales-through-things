@@ -36,6 +36,15 @@ The project uses yarn. To install it, run the following command:
 ```bash
     brew install yarn
 ```
+
+### Ollama
+
+The project uses Ollama to run the AI models. To install it, run the following command:
+
+```bash
+    brew install ollama
+```
+
 ## Start the project
 
 ```bash

@@ -41,4 +41,17 @@ export async function sendMessage(
 
   return { result: parsed, history: updatedHistory };
 }
-export { ChatMessage };
+
+export async function generateImage(prompt: string): Promise<string> {
+  const res = await fetch("http://localhost:8002/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt }),
+  });
+
+  const data = await res.json();
+  const filename = data.filename;
+  return filename;
+}
