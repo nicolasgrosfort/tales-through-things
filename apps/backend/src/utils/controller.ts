@@ -55,3 +55,32 @@ export async function generateImage(prompt: string): Promise<string> {
   const filename = data.filename;
   return filename;
 }
+
+export async function generateModel(
+  image: File,
+  options: {
+    ratio?: number;
+    rx?: number;
+    ry?: number;
+    rz?: number;
+  } = {},
+): Promise<Blob> {
+  const formData = new FormData();
+
+  formData.append("file", image);
+  formData.append("ratio", String(options.ratio ?? 1.0));
+  formData.append("rx", String(options.rx ?? 0));
+  formData.append("ry", String(options.ry ?? 0));
+  formData.append("rz", String(options.rz ?? 0));
+
+  const res = await fetch("http://localhost:8003/process", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+
+  return await res.blob();
+}
