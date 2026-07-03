@@ -1,5 +1,6 @@
 # Global
 .env
+__pycache__
 
 # Logs
 logs

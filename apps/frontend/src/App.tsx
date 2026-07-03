@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { Whisper } from "./components/Whisper";
 import { RESET_DELAY } from "./utils/config";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
@@ -86,8 +88,26 @@ function App() {
       });
   };
 
+  const handleRecordStart = useCallback(() => {
+    setIsLoading(true);
+    setIsRecording(true);
+  }, []);
+
+  const handleTranscribeEnd = useCallback((text: string) => {
+    handleMessage(text);
+  }, []);
+
+  const handleRecordEnd = useCallback(() => {
+    setIsRecording(false);
+  }, []);
+
   return (
     <main className="p-4">
+      <Whisper
+        onRecordStart={handleRecordStart}
+        onTranscribeEnd={handleTranscribeEnd}
+        onRecordEnd={handleRecordEnd}
+      />
       <h1 className="text-2xl font-bold mb-4">Tales Through Things</h1>
       <input
         type="text"
@@ -128,6 +148,7 @@ function App() {
       <p className="text-sm font-mono">Haiku: {haiku}</p>
       <p className="text-sm font-mono">Objet: {object}</p>
       <p className="text-sm font-mono">Username: {username}</p>
+      <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
       <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
