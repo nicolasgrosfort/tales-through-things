@@ -1,1 +1,1 @@
-export const RESET_DELAY = 60;
+export const RESET_DELAY = 120;

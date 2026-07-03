@@ -44,9 +44,21 @@ function App() {
     }, RESET_DELAY * 1000);
   };
 
-  const handleMessage = (message: string) => {
-    startInactivityTimer();
+  const resetInactivityTimer = () => {
+    if (inactivityTimer.current) {
+      clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = null;
+    }
 
+    if (countdownInterval.current) {
+      clearInterval(countdownInterval.current);
+      countdownInterval.current = null;
+    }
+
+    setCountdown(RESET_DELAY);
+  };
+
+  const handleMessage = (message: string) => {
     setIsLoading(true);
     setQuestion("");
 
@@ -60,21 +72,14 @@ function App() {
         setUsername(data.username);
         setResponse(data.response);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setIsLoading(false);
+        startInactivityTimer();
+      });
   };
 
   const handleReset = () => {
-    if (inactivityTimer.current) {
-      clearTimeout(inactivityTimer.current);
-      inactivityTimer.current = null;
-    }
-
-    if (countdownInterval.current) {
-      clearInterval(countdownInterval.current);
-      countdownInterval.current = null;
-    }
-
-    setCountdown(RESET_DELAY);
+    resetInactivityTimer();
 
     fetch(`${apiUrl}/reset`, { method: "POST" })
       .then((response) => response.json())
@@ -89,6 +94,7 @@ function App() {
   };
 
   const handleRecordStart = useCallback(() => {
+    resetInactivityTimer();
     setIsLoading(true);
     setIsRecording(true);
   }, []);
