@@ -1,6 +1,6 @@
 import os from "os";
 import { MAX_TURNS } from "./config";
-import { ChatMessage } from "./controller";
+import { ChatMessage } from "./types";
 
 export const getLocalIp = (): string => {
   const interfaces = os.networkInterfaces();
