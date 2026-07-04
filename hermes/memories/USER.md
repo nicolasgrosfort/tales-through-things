@@ -9,3 +9,5 @@ User may introduce themselves as Nico in memory-reminiscence conversations.
 User prefers the memory-reminiscence flow to slow down and avoid too many follow-up questions.
 §
 User may go by Nico in conversation; still ask for their first name in new memory-haiku sessions if not provided.
+§
+User likes a gentle, benevolent tone but dislikes repetitive softening words like “doucement”; prefer simple, natural French phrasing.
