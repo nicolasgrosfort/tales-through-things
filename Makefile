@@ -16,6 +16,7 @@ setup-agent: ; docker exec hermes hermes setup
 status-agent: ; docker exec hermes hermes status
 sessions-agent: ; docker exec hermes hermes sessions list
 restart-agent: ; docker compose restart hermes
+update-agent: ; docker compose pull hermes && docker compose up -d hermes
 
 # - - - - - - - - - -
 

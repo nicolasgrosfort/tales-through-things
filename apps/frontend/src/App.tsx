@@ -9,7 +9,7 @@ function App() {
   const countdownInterval = useRef<number | null>(null);
 
   const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState("Bonjour :)");
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
