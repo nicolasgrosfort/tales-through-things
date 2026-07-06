@@ -1,40 +1,13 @@
 import { compress } from "headroom-ai";
 import { jsonrepair } from "jsonrepair";
-import * as z from "zod";
-import { SYSTEM_PROMPT } from "./config";
+import { HEADROOM_URL, HERMES_AUTH, HERMES_URL } from "./config";
+import {
+  buildSystemMessages,
+  extractJson,
+  responseJsonSchema,
+} from "./helpers";
 import { ResponseSchema } from "./schemas";
 import { ChatMessage, ResponseType } from "./types";
-
-const HERMES_URL = "http://localhost:8642/v1/chat/completions";
-const HERMES_AUTH = "Bearer tales-through-things";
-const HEADROOM_URL = `http://localhost:${process.env.HEADROOM_PORT ?? 8787}`;
-
-// Schema JSON calculé une seule fois, réutilisé dans le prompt système
-const responseJsonSchema = z.toJSONSchema(ResponseSchema);
-
-function buildSystemMessages(): ChatMessage[] {
-  const jsonInstruction: ChatMessage = {
-    role: "system",
-    content: `
-      Tu dois répondre uniquement avec un JSON valide, sans Markdown, sans texte avant ou après, sans bloc \`\`\`json.
-      Le JSON doit respecter exactement ce JSON Schema :
-
-      ${JSON.stringify(responseJsonSchema, null, 2)}
-      `.trim(),
-  };
-
-  // On garde ton SYSTEM_PROMPT existant tel quel, on ajoute juste la contrainte JSON après
-  return [SYSTEM_PROMPT, jsonInstruction];
-}
-
-function extractJson(raw: string): string {
-  return raw
-    .trim()
-    .replace(/^```json\s*/i, "")
-    .replace(/^```\s*/i, "")
-    .replace(/```$/i, "")
-    .trim();
-}
 
 export async function sendMessage(
   input: string,
