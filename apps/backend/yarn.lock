@@ -500,6 +500,11 @@ hasown@^2.0.2, hasown@^2.0.3:
   dependencies:
     function-bind "^1.1.2"
 
+headroom-ai@^0.22.4:
+  version "0.22.4"
+  resolved "https://registry.yarnpkg.com/headroom-ai/-/headroom-ai-0.22.4.tgz#804aadbc3e8b91a00f912f4d08d417dfe0588db0"
+  integrity sha512-9a0rgB/jsWe8gs/ggyUwe6E8DYwKAuBvlUml2ApwlUjb5EfJ611X6X+WG0SiXw3nO6sdyV1/+Ah5uw9P7ecnjw==
+
 http-errors@^2.0.0, http-errors@^2.0.1, http-errors@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-2.0.1.tgz#36d2f65bc909c8790018dd36fb4d93da6caae06b"

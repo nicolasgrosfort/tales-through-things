@@ -1,3 +1,4 @@
+import { compress } from "headroom-ai";
 import { jsonrepair } from "jsonrepair";
 import * as z from "zod";
 import { SYSTEM_PROMPT } from "./config";
@@ -6,6 +7,7 @@ import { ChatMessage, ResponseType } from "./types";
 
 const HERMES_URL = "http://localhost:8642/v1/chat/completions";
 const HERMES_AUTH = "Bearer tales-through-things";
+const HEADROOM_URL = `http://localhost:${process.env.HEADROOM_PORT ?? 8787}`;
 
 // Schema JSON calculé une seule fois, réutilisé dans le prompt système
 const responseJsonSchema = z.toJSONSchema(ResponseSchema);
@@ -61,6 +63,19 @@ export async function sendMessage(
             },
           ];
 
+    // Compression avant l'envoi à Hermes
+    const { messages: compressedMessages } = await compress(messages, {
+      baseUrl: HEADROOM_URL,
+      model: "hermes-agent",
+    });
+
+    console.log(
+      `Envoi à Hermes (tentative ${attempt + 1}/${maxRetries + 1}) :`,
+      {
+        messages: compressedMessages,
+      },
+    );
+
     const res = await fetch(HERMES_URL, {
       method: "POST",
       headers: {
@@ -69,10 +84,8 @@ export async function sendMessage(
       },
       body: JSON.stringify({
         model: "hermes-agent",
-        messages,
+        messages: compressedMessages,
         stream: false,
-        // On le laisse au cas où le serveur l'honore un jour,
-        // mais on ne compte pas dessus.
         response_format: {
           type: "json_schema",
           json_schema: { name: "response", schema: responseJsonSchema },

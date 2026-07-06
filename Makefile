@@ -66,9 +66,15 @@ dev-sharp:
 		--port ${SHARP_PORT} \
 		--reload
 
+## Headroom
+init-headroom:
+	conda create -n headroom python=3.11 -y
+	conda run -n headroom pip install "headroom-ai[proxy]"
+dev-headroom:
+	conda run -n headroom headroom proxy --port $(HEADROOM_PORT)
 
 # - - - - - - - - - -
 
 # Common
-init: init-frontend init-backend init-agent init-whisper init-flux init-sharp 
-dev: ; $(MAKE) -j6 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp
+init: init-frontend init-backend init-agent init-whisper init-flux init-sharp init-headroom
+dev: ; $(MAKE) -j7 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp dev-headroom

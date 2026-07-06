@@ -11,6 +11,7 @@
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "headroom-ai": "^0.22.4",
     "jsonrepair": "^3.14.1",
     "zod": "^4.4.3"
   },
