@@ -7,7 +7,12 @@ import {
   responseJsonSchema,
 } from "./helpers";
 import { ResponseSchema } from "./schemas";
-import { ChatMessage, GenerateImageResponse, ResponseType } from "./types";
+import {
+  ChatMessage,
+  GenerateImageResponse,
+  GenerateModelResponse,
+  ResponseType,
+} from "./types";
 
 export async function sendMessage(
   input: string,
@@ -130,30 +135,31 @@ export async function generateImage(
 }
 
 export async function generateModel(
-  image: File,
+  imagePath: string,
   options: {
     ratio?: number;
     rx?: number;
     ry?: number;
     rz?: number;
   } = {},
-): Promise<Blob> {
-  const formData = new FormData();
-
-  formData.append("file", image);
-  formData.append("ratio", String(options.ratio ?? 1.0));
-  formData.append("rx", String(options.rx ?? 0));
-  formData.append("ry", String(options.ry ?? 0));
-  formData.append("rz", String(options.rz ?? 0));
-
+): Promise<GenerateModelResponse> {
   const res = await fetch("http://localhost:8003/process", {
     method: "POST",
-    body: formData,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      imagePath,
+      ratio: options.ratio ?? 1,
+      rx: options.rx ?? 0,
+      ry: options.ry ?? 0,
+      rz: options.rz ?? 0,
+    }),
   });
 
   if (!res.ok) {
     throw new Error(await res.text());
   }
 
-  return await res.blob();
+  return res.json();
 }

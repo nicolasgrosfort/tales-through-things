@@ -25,5 +25,22 @@ export type GlobalState = {
   haiku?: string;
   prompt?: string;
   image_url?: string;
+  image_path?: string;
   model_url?: string;
+  model_path?: string;
+};
+
+export type GenerateModelResponse = {
+  success: boolean;
+  jobId: string;
+  filename: string;
+  modelUrl: string;
+  filePath: string;
+  format: "ply";
+  ratio: number;
+  rotation: {
+    x: number;
+    y: number;
+    z: number;
+  };
 };

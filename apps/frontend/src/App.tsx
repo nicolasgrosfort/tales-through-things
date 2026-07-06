@@ -1,18 +1,9 @@
 import { useCallback, useRef, useState } from "react";
 import { Whisper } from "./components/Whisper";
 import { usePolling } from "./hooks/usePolling";
-import { RESET_DELAY } from "./utils/config";
+import { API_URL, RESET_DELAY } from "./utils/config";
+import { fetchState } from "./utils/helpers";
 import type { StateResponse } from "./utils/types";
-
-const apiUrl = `http://${window.location.hostname}:3001`;
-
-async function fetchState(): Promise<StateResponse> {
-  const res = await fetch(`${apiUrl}/state`);
-  if (!res.ok) {
-    throw new Error(`Erreur HTTP ${res.status}`);
-  }
-  return res.json();
-}
 
 function App() {
   const inactivityTimer = useRef<number | null>(null);
@@ -25,7 +16,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
   const [prompt, setPrompt] = useState("");
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
@@ -77,7 +67,7 @@ function App() {
     setIsLoading(true);
     setQuestion("");
 
-    fetch(`${apiUrl}/message?question=${encodeURIComponent(message)}`)
+    fetch(`${API_URL}/message?question=${encodeURIComponent(message)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
@@ -85,9 +75,42 @@ function App() {
         setHaiku(data.haiku);
         setObject(data.object);
         setPrompt(data.prompt);
-        setImageUrl(data.image_url);
         setUsername(data.username);
         setResponse(data.response);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        startInactivityTimer();
+      });
+  };
+
+  const handleImageGeneration = (prompt: string) => {
+    setIsLoading(true);
+
+    fetch(`${API_URL}/image?prompt=${encodeURIComponent(prompt)}`, {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Image generation response from backend:", data);
+        setPrompt(prompt);
+      })
+      .finally(() => {
+        setIsLoading(false);
+        startInactivityTimer();
+      });
+  };
+
+  const handleModelGeneration = (image_url: string) => {
+    setIsLoading(true);
+
+    fetch(`${API_URL}/model?image_path=${encodeURIComponent(image_url)}`, {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Model generation response from backend:", data);
+        setPrompt(image_url);
       })
       .finally(() => {
         setIsLoading(false);
@@ -98,14 +121,13 @@ function App() {
   const handleReset = () => {
     resetInactivityTimer();
 
-    fetch(`${apiUrl}/reset`, { method: "POST" })
+    fetch(`${API_URL}/reset`, { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Reset response from backend:", data);
         setIsReady(false);
         setHaiku("");
         setUsername("");
-        setImageUrl("");
         setObject("");
         setPrompt("");
         setResponse("");
@@ -141,6 +163,7 @@ function App() {
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         onKeyDown={(e) => {
+          e.stopPropagation();
           if (e.key === "Enter") {
             handleMessage(question);
           }
@@ -150,16 +173,35 @@ function App() {
       <br />
       <div className="flex gap-2">
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-30"
           disabled={isLoading || question.trim() === ""}
           onClick={() => {
             handleMessage(question);
           }}
         >
-          {"Send"}
+          Discussion
         </button>
         <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded disabled:opacity-30"
+          disabled={isLoading || question.trim() === ""}
+          onClick={() => {
+            handleImageGeneration(question);
+          }}
+        >
+          Imaging
+        </button>
+        <button
+          className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded disabled:opacity-30"
+          disabled={isLoading || !data?.data?.state.image_path}
+          onClick={() => {
+            handleModelGeneration(data?.data?.state.image_path || "");
+          }}
+        >
+          Modeling
+        </button>
+        <button
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded disabled:opacity-30"
+          disabled={isLoading}
           onClick={handleReset}
         >
           Reset
@@ -181,10 +223,10 @@ function App() {
       </p>
 
       <div className="mt-4">
-        {/* <img
-          src={`../../../models/flux/output/4913a4ee88884fe890daf6d69c833278.png`}
-          alt="Generated"
-        /> */}
+        {data?.data?.state.image_url && (
+          <img src={data.data.state.image_url} alt="Generated" />
+        )}
+
         <pre className="text-sm font-mono">{JSON.stringify(data, null, 2)}</pre>
       </div>
     </main>
