@@ -43,7 +43,10 @@ The project uses Ollama to run the AI models. To install it, run the following c
 
 ```bash
     brew install ollama
+    launchctl setenv OLLAMA_HOST "0.0.0.0:11434" # Expose Ollama to the host machine
 ```
+
+
 
 ## Start the project
 

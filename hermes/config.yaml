@@ -1,7 +1,7 @@
 model:
-  default: gpt-5.5
-  provider: openai-codex
-  base_url: https://chatgpt.com/backend-api/codex
+  default: qwen3.6:35b-mlx
+  provider: custom
+  base_url: http://host.docker.internal:11434/v1
 agent:
   max_turns: 150
   verify_on_stop: false
@@ -21,21 +21,17 @@ plugins:
   enabled: []
 platform_toolsets:
   cli:
-    - browser
     - clarify
     - code_execution
     - computer_use
     - cronjob
     - delegation
     - file
-    - image_gen
     - memory
     - session_search
     - skills
     - terminal
     - todo
-    - vision
-    - web
 known_plugin_toolsets:
   cli:
     - spotify
@@ -54,6 +50,10 @@ mcp_servers:
       - run
       - dev
     enabled: true
+custom_providers:
+  - name: ollama
+    base_url: http://host.docker.internal:11434/v1
+    model: qwen3.6:35b-mlx
 
 # ── Security ──────────────────────────────────────────────────────────
 # Secret redaction is ON by default — strings that look like API keys,
