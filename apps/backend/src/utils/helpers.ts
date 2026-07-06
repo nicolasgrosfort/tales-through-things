@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import os from "os";
 import z from "zod";
 import { MAX_TURNS, SYSTEM_PROMPT } from "./config";
@@ -43,4 +45,11 @@ export const extractJson = (raw: string): string => {
     .replace(/^```\s*/i, "")
     .replace(/```$/i, "")
     .trim();
+};
+
+export const readPromptFile = (filePath: string) => {
+  return fs.readFileSync(
+    path.join(__dirname, "../prompts/" + filePath),
+    "utf-8",
+  );
 };
