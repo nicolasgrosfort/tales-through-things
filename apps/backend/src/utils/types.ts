@@ -30,6 +30,7 @@ export type GlobalState = {
   username?: string;
   haiku?: string;
   prompt?: string;
+  object?: string;
   image_url?: string;
   image_path?: string;
   model_url?: string;
@@ -50,3 +51,11 @@ export type GenerateModelResponse = {
     z: number;
   };
 };
+
+export type GlobalEvents =
+  | "prompt:ready"
+  | "image:done"
+  | "image:failed"
+  | "model:done"
+  | "model:failed"
+  | "reset";

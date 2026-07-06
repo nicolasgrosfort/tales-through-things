@@ -36,12 +36,4 @@ export const ResponseSchema = z.object({
         "(matière, forme, lumière, usure) — pas la scène du souvenir, pas l'utilisateur. " +
         "Vide ('') tant que 'object' n'est pas rempli.",
     ),
-
-  ready: z
-    .boolean()
-    .describe(
-      "true uniquement quand 'haiku' ET 'object' sont tous deux suffisamment définis et que le " +
-        "souvenir est jugé assez remémoré pour déclencher la génération d'image et la sauvegarde. " +
-        "false dans tous les autres cas, y compris pendant les questions d'approfondissement.",
-    ),
 });

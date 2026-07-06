@@ -47,13 +47,6 @@ export async function sendMessage(
       model: "hermes-agent",
     });
 
-    console.log(
-      `Envoi à Hermes (tentative ${attempt + 1}/${maxRetries + 1}) :`,
-      {
-        messages: compressedMessages,
-      },
-    );
-
     const res = await fetch(HERMES_URL, {
       method: "POST",
       headers: {

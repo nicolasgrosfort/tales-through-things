@@ -14,12 +14,7 @@ function App() {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("Bonjour :)");
   const [isLoading, setIsLoading] = useState(false);
-  const [isReady, setIsReady] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [prompt, setPrompt] = useState("");
-  const [haiku, setHaiku] = useState("");
-  const [username, setUsername] = useState("");
-  const [object, setObject] = useState("");
 
   const [countdown, setCountdown] = useState(RESET_DELAY);
 
@@ -71,11 +66,6 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
-        setIsReady(data.ready);
-        setHaiku(data.haiku);
-        setObject(data.object);
-        setPrompt(data.prompt);
-        setUsername(data.username);
         setResponse(data.response);
       })
       .finally(() => {
@@ -93,7 +83,6 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Image generation response from backend:", data);
-        setPrompt(prompt);
       })
       .finally(() => {
         setIsLoading(false);
@@ -110,7 +99,6 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Model generation response from backend:", data);
-        setPrompt(image_url);
       })
       .finally(() => {
         setIsLoading(false);
@@ -125,11 +113,6 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Reset response from backend:", data);
-        setIsReady(false);
-        setHaiku("");
-        setUsername("");
-        setObject("");
-        setPrompt("");
         setResponse("");
       });
   };
@@ -212,12 +195,7 @@ function App() {
         {isLoading ? "Loading..." : response}
       </p>
 
-      <p className="text-sm font-mono">Haiku: {haiku}</p>
-      <p className="text-sm font-mono">Objet: {object}</p>
-      <p className="text-sm font-mono">Username: {username}</p>
-      <p className="text-sm font-mono">Prompt: {prompt}</p>
       <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
-      <p className="text-sm font-mono">Ready: {isReady.toString()}</p>
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
       </p>
