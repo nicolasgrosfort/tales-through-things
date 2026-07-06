@@ -26,13 +26,45 @@ app.get("/message", async (req, res) => {
 
   sessions.set(sessionId, updatedHistory);
 
+  if (result.prompt) state.prompt = result.prompt;
+  if (result.haiku) state.haiku = result.haiku;
+  if (result.username) state.username = result.username;
+
+  // Call /image endpoint if ready and prompt is available
+  if (result.ready && result.prompt) {
+    state.status = "imaging";
+    const imageData = generateImage(result.prompt)
+      .then((data) => {
+        state.image_url = data.image_url;
+        state.image_path = data.file_path;
+
+        // Call /model endpoint if image_path is available
+        if (state.image_path) {
+          state.status = "modeling";
+          generateModel(state.image_path)
+            .then((modelData) => {
+              state.model_url = modelData.modelUrl;
+              state.model_path = modelData.filePath;
+            })
+            .catch((error) => {
+              console.error("Error generating model:", error);
+            })
+            .finally(() => {
+              state.status = "done";
+            });
+        }
+      })
+      .catch((error) => {
+        console.error("Error generating image:", error);
+      });
+  }
+
   res.json({
     status: "ok",
     response: result.question,
     ready: result.ready,
     haiku: result.haiku,
     username: result.username,
-    image_url: result.image_url,
     prompt: result.prompt,
     object: result.object,
     history: updatedHistory,

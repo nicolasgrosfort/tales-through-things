@@ -17,7 +17,13 @@ export type GenerateImageResponse = {
   height: number;
 };
 
-export type Status = "idle" | "conversing" | "imaging" | "modeling" | "error";
+export type Status =
+  | "idle"
+  | "conversing"
+  | "imaging"
+  | "modeling"
+  | "error"
+  | "done";
 
 export type GlobalState = {
   status: Status;

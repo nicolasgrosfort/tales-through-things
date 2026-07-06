@@ -44,11 +44,4 @@ export const ResponseSchema = z.object({
         "souvenir est jugé assez remémoré pour déclencher la génération d'image et la sauvegarde. " +
         "false dans tous les autres cas, y compris pendant les questions d'approfondissement.",
     ),
-
-  image_url: z
-    .string()
-    .describe(
-      "URL de l'image renvoyée par l'outil mcp_memorize_image, générée à partir de 'prompt'. " +
-        "Vide ('') tant que l'outil n'a pas encore été appelé ou n'a pas encore répondu.",
-    ),
 });

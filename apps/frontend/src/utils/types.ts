@@ -9,7 +9,13 @@ export type GlobalState = {
   model_path?: string;
 };
 
-export type Status = "idle" | "conversing" | "imaging" | "modeling" | "error";
+export type Status =
+  | "idle"
+  | "conversing"
+  | "imaging"
+  | "modeling"
+  | "error"
+  | "done";
 
 export type StateResponse = {
   status: "ok" | "pending" | "error";
