@@ -2,12 +2,21 @@ import cors from "cors";
 import express from "express";
 import { generateImage, sendMessage } from "./utils/controller";
 import { getLocalIp } from "./utils/helpers";
-import { ChatMessage } from "./utils/types";
+import { ChatMessage, GlobalState } from "./utils/types";
 
 const app = express();
 const port = Number(process.env.PORT) || 3001;
 
 const sessions = new Map<string, ChatMessage[]>();
+
+const state: GlobalState = {
+  status: "idle",
+  username: undefined,
+  haiku: undefined,
+  prompt: undefined,
+  image_url: undefined,
+  model_url: undefined,
+};
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
@@ -45,11 +54,21 @@ app.post("/reset", (req, res) => {
 });
 
 app.post("/image", async (req, res) => {
-  const prompt =
-    (req.query.prompt as string) ||
-    "Un chat qui discute avec une intelligence artificielle";
-  const path = await generateImage(prompt);
-  res.json({ status: "ok", path });
+  const prompt = req.query.prompt as string;
+  const data = await generateImage(prompt);
+  console.log(data);
+  res.json({ status: "ok", ...data });
+});
+
+// app.post("/model", async (req, res) => {
+//   const image_url = req.query.prompt as string;
+//   const data = await generateModel(image_url);
+//   console.log(data);
+//   res.json({ status: "ok", ...data });
+// });
+
+app.get("/state", async (req, res) => {
+  res.json({ status: "ok", state });
 });
 
 app.listen(port, "0.0.0.0", () => {

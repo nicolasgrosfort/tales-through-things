@@ -1,12 +1,24 @@
 import { useCallback, useRef, useState } from "react";
 import { Whisper } from "./components/Whisper";
+import { usePolling } from "./hooks/usePolling";
 import { RESET_DELAY } from "./utils/config";
+import type { StateResponse } from "./utils/types";
+
+const apiUrl = `http://${window.location.hostname}:3001`;
+
+async function fetchState(): Promise<StateResponse> {
+  const res = await fetch(`${apiUrl}/state`);
+  if (!res.ok) {
+    throw new Error(`Erreur HTTP ${res.status}`);
+  }
+  return res.json();
+}
 
 function App() {
-  const apiUrl = `http://${window.location.hostname}:3001`;
-
   const inactivityTimer = useRef<number | null>(null);
   const countdownInterval = useRef<number | null>(null);
+
+  const data = usePolling<StateResponse>(fetchState, { interval: 5000 });
 
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("Bonjour :)");
@@ -18,6 +30,7 @@ function App() {
   const [haiku, setHaiku] = useState("");
   const [username, setUsername] = useState("");
   const [object, setObject] = useState("");
+
   const [countdown, setCountdown] = useState(RESET_DELAY);
 
   const startInactivityTimer = () => {
@@ -168,10 +181,11 @@ function App() {
       </p>
 
       <div className="mt-4">
-        <img
+        {/* <img
           src={`../../../models/flux/output/4913a4ee88884fe890daf6d69c833278.png`}
           alt="Generated"
-        />
+        /> */}
+        <pre className="text-sm font-mono">{JSON.stringify(data, null, 2)}</pre>
       </div>
     </main>
   );

@@ -47,12 +47,13 @@ dev-whisper:
 ## Flux
 init-flux:
 	conda create -n flux python=3.11 -y
-	conda run -n flux pip install git+https://github.com/huggingface/diffusers.git transformers accelerate safetensors fastapi "uvicorn[standard]" python-multipart torch torchvision pillow
+	conda run -n flux pip install git+https://github.com/huggingface/diffusers.git \
+		transformers accelerate safetensors fastapi "uvicorn[standard]" \
+		python-multipart torch torchvision pillow
 dev-flux:
 	conda run -n flux uvicorn models.flux.api:app \
 		--host 0.0.0.0 \
-		--port $(FLUX_PORT) \
-		--reload
+		--port $(FLUX_PORT)
 
 #ML-Sharp
 init-sharp:

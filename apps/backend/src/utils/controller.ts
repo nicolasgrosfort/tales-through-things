@@ -7,7 +7,7 @@ import {
   responseJsonSchema,
 } from "./helpers";
 import { ResponseSchema } from "./schemas";
-import { ChatMessage, ResponseType } from "./types";
+import { ChatMessage, GenerateImageResponse, ResponseType } from "./types";
 
 export async function sendMessage(
   input: string,
@@ -111,7 +111,9 @@ export async function sendMessage(
   );
 }
 
-export async function generateImage(prompt: string): Promise<string> {
+export async function generateImage(
+  prompt: string,
+): Promise<GenerateImageResponse> {
   const res = await fetch("http://localhost:8002/generate", {
     method: "POST",
     headers: {
@@ -120,9 +122,11 @@ export async function generateImage(prompt: string): Promise<string> {
     body: JSON.stringify({ prompt }),
   });
 
-  const data = await res.json();
-  const path = data.path;
-  return path;
+  if (!res.ok) {
+    throw new Error(`Generation failed (${res.status})`);
+  }
+
+  return await res.json();
 }
 
 export async function generateModel(
