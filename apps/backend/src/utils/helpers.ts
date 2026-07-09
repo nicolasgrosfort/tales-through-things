@@ -49,7 +49,7 @@ export const extractJson = (raw: string): string => {
 
 export const readPromptFile = (filePath: string) => {
   return fs.readFileSync(
-    path.join(__dirname, "../prompts/" + filePath),
+    path.join(__dirname, "../skills/" + filePath),
     "utf-8",
   );
 };

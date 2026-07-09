@@ -5,7 +5,7 @@ export const MAX_TURNS = 10;
 export const SYSTEM_PROMPT: ChatMessage = {
   role: "system",
   content: `
-    ${readPromptFile("HERMES.md")}
+    ${readPromptFile("INTERVIEWER.md")}
     ${readPromptFile("HAIKU.md")}
   `,
 };
