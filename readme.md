@@ -46,7 +46,23 @@ The project uses Ollama to run the AI models. To install it, run the following c
     launchctl setenv OLLAMA_HOST "0.0.0.0:11434" # Expose Ollama to the host machine
 ```
 
+## Models
 
+### ML-Sharp
+
+To test manually the ML-Sharp model, you can use the following command:
+
+```bash
+curl -X POST http://localhost:8003/process \
+  -H "Content-Type: application/json" \
+  -d '{
+    "imagePath": "/chemin/absolu/vers/ton_image.png",
+    "ratio": 1.0,
+    "rx": 0,
+    "ry": 0,
+    "rz": 0
+  }'
+```
 
 ## Start the project
 
