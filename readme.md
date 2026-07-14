@@ -58,7 +58,7 @@ curl -X POST http://localhost:8003/process \
   -d '{
     "imagePath": "/chemin/absolu/vers/ton_image.png",
     "ratio": 1.0,
-    "rx": 0,
+    "rx": 180,
     "ry": 0,
     "rz": 0
   }'
