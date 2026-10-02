@@ -49,7 +49,8 @@ The project uses Ollama (v0.35.0 or later) to run the AI models. To install it, 
 Here are the list of models used in the project:
 
 ```bash
-    ollama pull qwen3.8:27b-mlx
+    ollama pull gemma4:e4b-mlx
+    ollama pull nimble:latest
 ```
 
 ### Hermes
