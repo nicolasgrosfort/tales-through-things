@@ -15,7 +15,10 @@ function App() {
   const data = usePolling<StateResponse>(fetchState, { interval: 5000 });
 
   const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("Bonjour :)");
+  const [response, setResponse] = useState(() => {
+    addLog("Initial response set");
+    return "Bonjour :)";
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(RESET_DELAY);
@@ -63,14 +66,14 @@ function App() {
   const handleMessage = (message: string) => {
     setIsLoading(true);
     setQuestion("");
-    addLog(`Question: "${message}"`);
+    addLog(`User: "${message}"`);
 
     fetch(`${API_URL}/message?question=${encodeURIComponent(message)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
         setResponse(data.response);
-        addLog(`Response: "${data.response}"`);
+        addLog(`Model: "${data.response}"`);
       })
       .finally(() => {
         setIsLoading(false);
