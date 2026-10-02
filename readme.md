@@ -39,14 +39,27 @@ The project uses yarn. To install it, run the following command:
 
 ### Ollama
 
-The project uses Ollama to run the AI models. To install it, run the following command:
+The project uses Ollama (v0.35.0 or later) to run the AI models. To install it, run the following command:
 
 ```bash
     brew install ollama
     launchctl setenv OLLAMA_HOST "0.0.0.0:11434" # Expose Ollama to the host machine
 ```
 
-## Models
+Here are the list of models used in the project:
+
+```bash
+    ollama pull qwen3.8:27b-mlx
+```
+
+### Hermes
+
+The installation starts with `make init`. Here is how to setup: 
+
+1. Select "Full Setup"
+2. Leave the default settings (defined in config.yaml)
+
+
 
 ### ML-Sharp
 
@@ -70,3 +83,4 @@ curl -X POST http://localhost:8003/process \
     make init 
     make dev
 ```
+

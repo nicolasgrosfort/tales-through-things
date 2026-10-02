@@ -1,5 +1,5 @@
 model:
-  default: qwen3.6:35b-mlx
+  default: qwen3.8:27b-mlx
   provider: custom
   base_url: http://host.docker.internal:11434/v1
 agent:
@@ -22,16 +22,9 @@ plugins:
 platform_toolsets:
   cli:
     - clarify
-    - code_execution
-    - computer_use
     - cronjob
-    - delegation
-    - file
     - memory
     - session_search
-    - skills
-    - terminal
-    - todo
 known_plugin_toolsets:
   cli:
     - spotify
@@ -53,7 +46,7 @@ mcp_servers:
 custom_providers:
   - name: ollama
     base_url: http://host.docker.internal:11434/v1
-    model: qwen3.6:35b-mlx
+    model: qwen3.8:27b-mlx
 
 # ── Security ──────────────────────────────────────────────────────────
 # Secret redaction is ON by default — strings that look like API keys,
