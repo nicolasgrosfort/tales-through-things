@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { Debug } from "./components/Debug";
 import { Logs } from "./components/Logs";
 import { Whisper } from "./components/Whisper";
 import { usePolling } from "./hooks/usePolling";
@@ -227,6 +228,7 @@ function App() {
         </div>
       </main>
       <Logs />
+      <Debug />
     </>
   );
 }
