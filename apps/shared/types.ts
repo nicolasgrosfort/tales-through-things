@@ -28,3 +28,21 @@ export type ImageGenerationResponse = {
   height: number;
   seed: number;
 };
+
+export type GenerateModelResponse = {
+  success: boolean;
+  id: string;
+  ply_url: string;
+  glb_url: string | null;
+  file_path: string;
+  completed_stages: string[];
+};
+
+export type RemoveBackgroundResponse = {
+  success: true;
+  filename: string;
+  image_url: string;
+  file_path: string;
+  width: number;
+  height: number;
+};

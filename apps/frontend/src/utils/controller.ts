@@ -1,6 +1,8 @@
 import type {
   Evaluation,
+  GenerateModelResponse,
   ImageGenerationResponse,
+  RemoveBackgroundResponse,
 } from "../../../shared/types";
 import { API_URL } from "./config";
 import { useConversationStore } from "./stores";
@@ -50,7 +52,7 @@ export const generateImage = async (
 
 export const removeBackground = async (
   imagePath: string,
-): Promise<{ outputPath: string }> => {
+): Promise<RemoveBackgroundResponse> => {
   const res = await fetch(`${API_URL}/remove-background`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -66,7 +68,7 @@ export const removeBackground = async (
 
 export const generateModel = async (
   imagePath: string,
-): Promise<{ outputPath: string }> => {
+): Promise<GenerateModelResponse> => {
   const res = await fetch(`${API_URL}/generate-model`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

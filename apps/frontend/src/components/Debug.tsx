@@ -28,10 +28,10 @@ export const Debug = () => {
     setImagePromptLoading(true);
     addLog(`Generating image with prompt: "${prompt}"`);
     try {
-      const image = await generateImage(prompt);
-      addLog(`Image generated:\n${JSON.stringify(image, null, 2)}`);
-      setImagePath(image.file_path);
-      setBgImageUrl(image.file_path);
+      const generatedImage = await generateImage(prompt);
+      addLog(`Image generated:\n${JSON.stringify(generatedImage, null, 2)}`);
+      setImagePath(generatedImage.image_url);
+      setBgImageUrl(generatedImage.file_path);
     } catch (e) {
       addLog(`Image generation error: ${String(e)}`);
     } finally {
@@ -44,10 +44,12 @@ export const Debug = () => {
     setBgLoading(true);
     addLog(`Removing background: ${url}`);
     try {
-      const { outputPath } = await removeBackground(url.trim());
-      addLog(`Background removed: ${outputPath}`);
-      setBgResult(outputPath);
-      setModelImageUrl(outputPath);
+      const imageWithoutBackground = await removeBackground(url.trim());
+      addLog(
+        `Background removed:\n${JSON.stringify(imageWithoutBackground, null, 2)}`,
+      );
+      setBgResult(imageWithoutBackground.image_url);
+      setModelImageUrl(imageWithoutBackground.file_path);
     } catch (e) {
       addLog(`Remove background error: ${String(e)}`);
     } finally {
@@ -60,9 +62,9 @@ export const Debug = () => {
     setModelLoading(true);
     addLog(`Generating model from: ${url}`);
     try {
-      const { outputPath } = await generateModel(url.trim());
-      addLog(`Model generated: ${outputPath}`);
-      setModelResult(outputPath);
+      const generatedModel = await generateModel(url.trim());
+      addLog(`Model generated:\n${JSON.stringify(generatedModel, null, 2)}`);
+      setModelResult(generatedModel.file_path);
     } catch (e) {
       addLog(`Generate model error: ${String(e)}`);
     } finally {

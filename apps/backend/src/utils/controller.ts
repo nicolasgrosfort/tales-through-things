@@ -1,4 +1,8 @@
-import { ImageGenerationResponse } from "../../../shared/types";
+import {
+  GenerateModelResponse,
+  ImageGenerationResponse,
+  RemoveBackgroundResponse,
+} from "../../../shared/types";
 import {
   OLLAMA_MODEL,
   OLLAMA_URL,
@@ -6,12 +10,7 @@ import {
   SYSTEMONE_URL,
 } from "./config";
 import { readPromptFile } from "./helpers";
-import {
-  ChatMessage,
-  Evaluation,
-  GenerateModelResponse,
-  NextQuestion,
-} from "./types";
+import { ChatMessage, Evaluation, NextQuestion } from "./types";
 
 // export async function sendMessage(
 //   input: string,
@@ -269,17 +268,18 @@ export async function generateModel(
 
 export async function removeBackground(
   imagePath: string,
-): Promise<{ file_path: string; image_url: string; filename: string }> {
-  return fetch("http://localhost:8006/remove-background", {
+): Promise<RemoveBackgroundResponse> {
+  const res = await fetch("http://localhost:8006/remove-background", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ imagePath }),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Remove background failed (${res.status})`);
-    }
-    return res.json();
   });
+
+  if (!res.ok) {
+    throw new Error(`Remove background failed (${res.status})`);
+  }
+
+  return res.json();
 }

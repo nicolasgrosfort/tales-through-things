@@ -30,15 +30,6 @@ export type GlobalState = {
   model_path?: string;
 };
 
-export type GenerateModelResponse = {
-  success: boolean;
-  id: string;
-  ply_url: string;
-  glb_url: string | null;
-  file_path: string;
-  completed_stages: string[];
-};
-
 export type GlobalEvents =
   | "prompt:ready"
   | "image:done"
