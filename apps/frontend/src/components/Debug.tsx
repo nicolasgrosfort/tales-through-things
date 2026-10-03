@@ -6,6 +6,7 @@ import {
 } from "../utils/controller";
 import { useLogStore } from "../utils/stores";
 import { Button } from "./Button";
+import { Scene } from "./Scene";
 import { Textfield } from "./Textfield";
 
 export const Debug = () => {
@@ -22,7 +23,9 @@ export const Debug = () => {
 
   const [modelImageUrl, setModelImageUrl] = useState("");
   const [modelLoading, setModelLoading] = useState(false);
-  const [modelResult, setModelResult] = useState("");
+  const [modelResult, setModelResult] = useState(
+    "http://localhost:8005/models/3334a981d8a948a6b3636667cd5f5a5e.ply",
+  );
 
   const handleGenerateImage = async (prompt: string) => {
     setImagePromptLoading(true);
@@ -64,7 +67,7 @@ export const Debug = () => {
     try {
       const generatedModel = await generateModel(url.trim());
       addLog(`Model generated:\n${JSON.stringify(generatedModel, null, 2)}`);
-      setModelResult(generatedModel.file_path);
+      setModelResult(generatedModel.ply_url);
     } catch (e) {
       addLog(`Generate model error: ${String(e)}`);
     } finally {
@@ -134,7 +137,7 @@ export const Debug = () => {
             disabled={modelLoading || !modelImageUrl.trim()}
           />
         </div>
-        {modelResult && <p className="text-sm break-all">{modelResult}</p>}
+        {modelResult && <Scene model={modelResult} />}
       </section>
     </div>
   );
