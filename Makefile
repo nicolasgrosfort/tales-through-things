@@ -37,19 +37,17 @@ dev-frontend: ; cd apps/frontend && yarn dev
 ## Whisper
 init-whisper:
 	conda create -n whisper python=3.11 -y
-	conda run -n whisper pip install faster-whisper fastapi "uvicorn[standard]" python-multipart
+	conda run -n whisper pip install mlx-whisper fastapi "uvicorn[standard]" python-multipart
 dev-whisper:
-	conda run -n whisper uvicorn models.whisper.api:app \
+	conda run --no-capture-output -n whisper uvicorn models.whisper.api:app \
 		--host 0.0.0.0 \
 		--port $(WHISPER_PORT) \
-		--reload --reload
+		--reload
 
 ## Flux
 init-flux:
 	conda create -n flux python=3.11 -y
-	conda run -n flux pip install git+https://github.com/huggingface/diffusers.git \
-		transformers accelerate safetensors fastapi "uvicorn[standard]" \
-		python-multipart torch torchvision pillow
+	conda run -n flux pip install mflux fastapi "uvicorn[standard]" python-multipart pillow
 dev-flux:
 	conda run -n flux uvicorn models.flux.api:app \
 		--host 0.0.0.0 \
@@ -67,6 +65,25 @@ dev-sharp:
 		--port ${SHARP_PORT} \
 		--reload
 
+## SAM 3D
+init-sam3d:
+	conda create -n sam3d python=3.11 -y
+	conda run -n sam3d pip install mlx-spatial fastapi "uvicorn[standard]" python-multipart pillow
+dev-sam3d:
+	conda run -n sam3d uvicorn models.sam-3d.api:app \
+		--host 0.0.0.0 \
+		--port $(SAM3D_PORT)
+
+## BiRefNet
+init-birefnet:
+	conda create -n birefnet python=3.11 -y
+	conda run -n birefnet pip install torch torchvision transformers timm einops kornia \
+		fastapi "uvicorn[standard]" python-multipart pillow
+dev-birefnet:
+	conda run -n birefnet uvicorn models.birefnet.api:app \
+		--host 0.0.0.0 \
+		--port $(BIREFNET_PORT)
+
 ## Headroom
 init-headroom:
 	conda create -n headroom python=3.11 -y
@@ -77,5 +94,5 @@ dev-headroom:
 # - - - - - - - - - -
 
 # Common
-init: init-frontend init-backend init-agent init-whisper init-flux init-sharp init-headroom
-dev: ; $(MAKE) -j7 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp dev-headroom
+init: init-frontend init-backend init-agent init-whisper init-flux init-sharp init-sam3d init-birefnet init-headroom
+dev: ; $(MAKE) -j9 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp dev-sam3d dev-birefnet dev-headroom

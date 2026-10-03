@@ -2,9 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "os";
 import z from "zod";
-import { MAX_TURNS, SYSTEM_PROMPT } from "./config";
+import { MAX_TURNS } from "./config";
 import { ResponseSchema } from "./schemas";
-import { ChatMessage } from "./types";
+import { ChatMessage, DecisionAnswer } from "./types";
 
 export const getLocalIp = (): string => {
   const interfaces = os.networkInterfaces();
@@ -24,20 +24,6 @@ export const trimHistory = (history: ChatMessage[]): ChatMessage[] => {
 
 export const responseJsonSchema = z.toJSONSchema(ResponseSchema);
 
-export const buildSystemMessages = (): ChatMessage[] => {
-  const jsonInstruction: ChatMessage = {
-    role: "system",
-    content: `
-      Tu dois répondre uniquement avec un JSON valide, sans Markdown, sans texte avant ou après, sans bloc \`\`\`json.
-      Le JSON doit respecter exactement ce JSON Schema :
-
-      ${JSON.stringify(responseJsonSchema, null, 2)}
-      `.trim(),
-  };
-
-  return [SYSTEM_PROMPT, jsonInstruction];
-};
-
 export const extractJson = (raw: string): string => {
   return raw
     .trim()
@@ -53,3 +39,13 @@ export const readPromptFile = (filePath: string) => {
     "utf-8",
   );
 };
+
+export const readNoul = (a?: DecisionAnswer): number =>
+  (typeof a?.probability === "number" ? a.probability : undefined) ??
+  a?.probabilities?.["true"] ??
+  0;
+
+export const toTranscript = (history: ChatMessage[]) =>
+  history
+    .map((m) => `${m.role === "assistant" ? "Q" : "R"} : ${m.content}`)
+    .join("\n");

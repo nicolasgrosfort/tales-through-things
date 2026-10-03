@@ -51,12 +51,6 @@ export const Whisper = ({
   }, [onTranscribeEnd]);
 
   useEffect(() => {
-    fetch("http://localhost:8001/health")
-      .then((r) => r.json())
-      .then(console.log);
-  }, []);
-
-  useEffect(() => {
     if (!audioBlob) return;
 
     // évite de retraiter exactement le même blob

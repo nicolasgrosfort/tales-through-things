@@ -1,16 +1,17 @@
 import os
+import random
 import uuid
 from pathlib import Path
-from typing import Any, cast
 
-import torch
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from mflux.models.common.config.model_config import ModelConfig
+from mflux.models.flux.variants.txt2img.flux import Flux1
 from pydantic import BaseModel, Field
-from diffusers.pipelines.flux2.pipeline_flux2_klein import Flux2KleinPipeline
 
 
-MODEL_ID = os.getenv("FLUX_MODEL", "black-forest-labs/FLUX.2-klein-4B")
+# pre-quantized (4-bit) mirror: black-forest-labs/FLUX.1-schnell is gated on Hugging Face
+MODEL_PATH = os.getenv("FLUX_MODEL", "madroid/flux.1-schnell-mflux-4bit")
 
 BASE_DIR = Path(__file__).parent
 OUTPUT_DIR = BASE_DIR / "output"
@@ -21,12 +22,7 @@ app = FastAPI(title="Flux Image Generator API")
 app.mount("/images", StaticFiles(directory=OUTPUT_DIR), name="images")
 
 
-pipe = Flux2KleinPipeline.from_pretrained(
-    MODEL_ID,
-    torch_dtype=torch.bfloat16,
-)
-
-pipe.enable_model_cpu_offload()
+model = Flux1(model_config=ModelConfig.schnell(), model_path=MODEL_PATH)
 
 
 class GenerateRequest(BaseModel):
@@ -34,7 +30,7 @@ class GenerateRequest(BaseModel):
     width: int = Field(default=1024, ge=256, le=2048)
     height: int = Field(default=1024, ge=256, le=2048)
     steps: int = Field(default=4, ge=1, le=50)
-    guidance_scale: float = Field(default=1.0, ge=0.0, le=20.0)
+    seed: int | None = None
 
 
 @app.get("/")
@@ -42,29 +38,27 @@ def root():
     return {
         "status": "ok",
         "message": "Flux Image Generator API is running",
+        "model": MODEL_PATH,
     }
 
 
 @app.post("/generate")
-def generate_image(request_data: GenerateRequest, request: Request):
-    result = cast(
-        Any,
-        pipe(
-            prompt=request_data.prompt,
-            width=request_data.width,
-            height=request_data.height,
-            num_inference_steps=request_data.steps,
-            guidance_scale=request_data.guidance_scale,
-            return_dict=True,
-        ),
-    )
+# async on purpose: runs on the event-loop thread, so Metal is never used from a worker thread
+async def generate_image(request_data: GenerateRequest, request: Request):
+    seed = request_data.seed if request_data.seed is not None else random.randint(0, 2**32 - 1)
 
-    image = result.images[0]
+    result = model.generate_image(
+        seed=seed,
+        prompt=request_data.prompt,
+        num_inference_steps=request_data.steps,
+        width=request_data.width,
+        height=request_data.height,
+    )
 
     filename = f"{uuid.uuid4().hex}.png"
     filepath = OUTPUT_DIR / filename
 
-    image.save(filepath)
+    result.image.save(filepath)
 
     image_url = str(request.base_url) + f"images/{filename}"
 
@@ -75,4 +69,5 @@ def generate_image(request_data: GenerateRequest, request: Request):
         "file_path": str(filepath),
         "width": request_data.width,
         "height": request_data.height,
+        "seed": seed,
     }

@@ -3,29 +3,25 @@ import os
 import tempfile
 from contextlib import asynccontextmanager
 
+import mlx_whisper
+import numpy as np
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from faster_whisper import WhisperModel
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
-MODEL_SIZE = os.getenv("WHISPER_MODEL", "medium")
-DEVICE     = os.getenv("WHISPER_DEVICE", "cpu")       # "cuda" si GPU
-LANGUAGE   = os.getenv("WHISPER_LANG", 'fr')          # None = auto-détect
+MODEL = os.getenv("WHISPER_MODEL", "mlx-community/whisper-large-v3-turbo")
+LANGUAGE = os.getenv("WHISPER_LANG") or None          # None = auto-détect
 
 # ── Lifespan (charge le modèle une seule fois au démarrage) ───────────────────
 
-model: WhisperModel | None = None
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global model
-    print(f"⏳ Chargement du modèle Whisper '{MODEL_SIZE}' sur {DEVICE}...")
-    COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE", "int8") 
-    model = WhisperModel(MODEL_SIZE, device=DEVICE, compute_type=COMPUTE_TYPE)
+    print(f"⏳ Chargement du modèle Whisper '{MODEL}'...")
+    # mlx-whisper charge (et met en cache) le modèle au premier appel : on le force ici
+    mlx_whisper.transcribe(np.zeros(16000, dtype=np.float32), path_or_hf_repo=MODEL)
     print("✔ Modèle prêt")
     yield
-    model = None
 
 # ── App ────────────────────────────────────────────────────────────────────────
 
@@ -42,14 +38,12 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": MODEL_SIZE, "device": DEVICE}
+    return {"status": "ok", "model": MODEL}
 
 
 @app.post("/transcribe")
+# async on purpose: runs on the event-loop thread, so Metal is never used from a worker thread
 async def transcribe(file: UploadFile = File(...)):
-    if model is None:
-        raise HTTPException(status_code=503, detail="Modèle non chargé")
-
     # Formats acceptés par Whisper
     content_type = (file.content_type or "").split(";")[0].strip()
 
@@ -64,29 +58,29 @@ async def transcribe(file: UploadFile = File(...)):
     if not contents:
         raise HTTPException(status_code=400, detail="Fichier vide")
 
-    # Fichier temporaire (Whisper a besoin d'un path sur disque)
+    # Fichier temporaire (ffmpeg a besoin d'un path sur disque)
     suffix = os.path.splitext(file.filename or "audio")[1] or ".wav"
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(contents)
         tmp_path = tmp.name
 
     try:
-        segments, info = model.transcribe(
+        result = mlx_whisper.transcribe(
             tmp_path,
+            path_or_hf_repo=MODEL,
             language=LANGUAGE,
-            beam_size=5,
-            vad_filter=True,          # filtre les silences
-            vad_parameters={"min_silence_duration_ms": 500},
+            # évite les boucles d'hallucination sur les silences
+            condition_on_previous_text=False,
         )
-        text = " ".join(s.text.strip() for s in segments)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur transcription : {e}")
     finally:
         os.unlink(tmp_path)
 
+    segments = result.get("segments", [])
+
     return {
-        "text": text,
-        "language": info.language,
-        "language_probability": round(info.language_probability, 2),
-        "duration": round(info.duration, 2),
+        "text": result["text"].strip(),
+        "language": result["language"],
+        "duration": round(segments[-1]["end"], 2) if segments else 0.0,
     }

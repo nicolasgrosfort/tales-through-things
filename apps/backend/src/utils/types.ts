@@ -1,21 +1,14 @@
 import z from "zod";
 import { ResponseSchema } from "./schemas";
 
+export type {
+  Message as ChatMessage,
+  Evaluation,
+  NextQuestion,
+  Topic,
+} from "../../../shared/types";
+
 export type ResponseType = z.infer<typeof ResponseSchema>;
-
-export type ChatMessage = {
-  role: "system" | "user" | "assistant";
-  content: string;
-};
-
-export type GenerateImageResponse = {
-  success: boolean;
-  filename: string;
-  image_url: string;
-  file_path: string;
-  width: number;
-  height: number;
-};
 
 export type Status =
   | "idle"
@@ -39,17 +32,11 @@ export type GlobalState = {
 
 export type GenerateModelResponse = {
   success: boolean;
-  jobId: string;
-  filename: string;
-  modelUrl: string;
-  filePath: string;
-  format: "ply";
-  ratio: number;
-  rotation: {
-    x: number;
-    y: number;
-    z: number;
-  };
+  id: string;
+  ply_url: string;
+  glb_url: string | null;
+  file_path: string;
+  completed_stages: string[];
 };
 
 export type GlobalEvents =
@@ -59,3 +46,26 @@ export type GlobalEvents =
   | "model:done"
   | "model:failed"
   | "reset";
+
+export type DecisionQuestion =
+  | {
+      label: string;
+      type: "choice";
+      instructions: string;
+      criteria: Record<string, string>;
+    }
+  | {
+      label: string;
+      type: "noul";
+      instructions: string;
+      criteria: { true: string; false: string };
+    };
+
+export type DecisionAnswer = {
+  choice?: string;
+  probabilities?: Record<string, number>;
+  confidence?: number;
+  [key: string]: unknown;
+};
+
+export type DecisionResponse = { answers: Record<string, DecisionAnswer> };

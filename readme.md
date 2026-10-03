@@ -52,6 +52,42 @@ Here are the list of models used in the project:
     ollama pull gemma4:e4b-mlx
     ollama pull nimble:latest
 ```
+## Hugging Face
+
+Install the Hugging Face CLI and download models
+
+```bash
+    brew install hf
+    hf download appautomaton/sam-3d-objects-mlx
+```
+
+### API Test
+
+**Flux**
+
+```bash
+curl -X POST http://localhost:8002/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "a dog sitting on a white background", "width": 1024, "height": 1024, "steps": 4}'
+```
+
+**Birefnet**
+
+```bash
+curl -X POST http://localhost:8006/remove-background \
+  -H "Content-Type: application/json" \
+  -d '{"imagePath": "/Users/nicolasgrosfort/Developer/courses/tales-through-things/models/flux/output/xxx.png"}'
+```
+
+**SAM 3D**
+
+```bash
+curl -X POST http://localhost:8005/generate \
+  -H "Content-Type: application/json" \
+  -d '{"imagePath": "/Users/nicolasgrosfort/Developer/courses/tales-through-things/models/birefnet/output/xxx.png"}'
+```
+
+
 
 ### Hermes
 
@@ -59,8 +95,6 @@ The installation starts with `make init`. Here is how to setup:
 
 1. Select "Full Setup"
 2. Leave the default settings (defined in config.yaml)
-
-
 
 ### ML-Sharp
 

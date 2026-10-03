@@ -23,3 +23,7 @@ export type StateResponse = {
   updatedAt: string;
   state: GlobalState;
 };
+
+export type Log = string;
+
+export type { Message, NextQuestion } from "../../../shared/types";
