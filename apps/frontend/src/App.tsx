@@ -205,8 +205,8 @@ function App() {
           Reset automatique dans {countdown}s
         </p>
       </main>
-      <Logs />
       <Debug />
+      <Logs />
     </>
   );
 }

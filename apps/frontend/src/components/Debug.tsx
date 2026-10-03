@@ -76,8 +76,8 @@ export const Debug = () => {
   };
 
   return (
-    <div className="bg-gray-200 p-4">
-      <h2 className="text-xl font-bold mb-4">Debug</h2>
+    <div className="bg-black p-4">
+      <h2 className="text-xl font-bold text-white mb-4">Debug</h2>
       <section className="grid grid-rows-[auto_auto] gap-2">
         <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
           <Textfield

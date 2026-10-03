@@ -3,11 +3,28 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Suspense, useMemo } from "react";
 import { BufferAttribute } from "three";
 import { PLYLoader } from "three/examples/jsm/Addons.js";
+import {
+  attribute,
+  float,
+  mx_noise_vec3,
+  positionLocal,
+  time,
+  uniform,
+} from "three/tsl";
+import { PointsNodeMaterial, WebGPURenderer } from "three/webgpu";
 
 export const Scene = ({ model }: { model: string }) => {
   return (
     <div className="w-full h-100">
-      <Canvas>
+      <Canvas
+        gl={async (props) => {
+          const renderer = new WebGPURenderer(
+            props as ConstructorParameters<typeof WebGPURenderer>[0],
+          );
+          await renderer.init();
+          return renderer;
+        }}
+      >
         <Suspense fallback={null}>
           <Model model={model} />
         </Suspense>
@@ -16,6 +33,24 @@ export const Scene = ({ model }: { model: string }) => {
     </div>
   );
 };
+
+const useNoiseMaterial = () =>
+  useMemo(() => {
+    const amplitude = uniform(0.05);
+    const frequency = uniform(1);
+    const speed = uniform(0.1);
+
+    // 3D perlin noise sampled at the point position, scrolling over time
+    const noise = mx_noise_vec3(
+      positionLocal.mul(frequency).add(time.mul(speed)),
+    );
+
+    const material = new PointsNodeMaterial({ sizeAttenuation: true });
+    material.sizeNode = float(0.001);
+    material.colorNode = attribute("color", "vec3");
+    material.positionNode = positionLocal.add(noise.mul(amplitude));
+    return material;
+  }, []);
 
 const Model = ({ model }: { model: string }) => {
   const geometry = useLoader(PLYLoader, model, (loader) => {
@@ -36,10 +71,12 @@ const Model = ({ model }: { model: string }) => {
     geometry.setAttribute("color", new BufferAttribute(colors, 3));
   }, [geometry]);
 
+  const material = useNoiseMaterial();
+
   useFrame((_, delta) => {
     if (geometry) {
       geometry.rotateZ(delta * 0.2);
-      geometry.rotateY(delta * -0.1);
+      //   geometry.rotateY(delta * -0.1);
     }
   });
 
@@ -49,7 +86,7 @@ const Model = ({ model }: { model: string }) => {
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, 0, 4]}
     >
-      <pointsMaterial size={0.001} vertexColors={true} sizeAttenuation />
+      <primitive object={material} attach="material" />
     </points>
   );
 };

@@ -32,7 +32,7 @@ export const Textfield = ({
   return (
     <input
       type="text"
-      className="w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300"
+      className="w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300 bg-white"
       value={value}
       onChange={handleOnChange}
       onKeyDown={handleKeyDown}
