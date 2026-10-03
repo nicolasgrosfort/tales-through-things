@@ -23,9 +23,7 @@ export const Debug = () => {
 
   const [modelImageUrl, setModelImageUrl] = useState("");
   const [modelLoading, setModelLoading] = useState(false);
-  const [modelResult, setModelResult] = useState(
-    "http://localhost:8005/models/3334a981d8a948a6b3636667cd5f5a5e.ply",
-  );
+  const [modelResult, setModelResult] = useState("");
 
   const handleGenerateImage = async (prompt: string) => {
     setImagePromptLoading(true);
@@ -137,7 +135,7 @@ export const Debug = () => {
             disabled={modelLoading || !modelImageUrl.trim()}
           />
         </div>
-        {modelResult && <Scene model={modelResult} />}
+        {modelResult && <Scene model={modelResult} pointSize={0.002} />}
       </section>
     </div>
   );
