@@ -1,4 +1,5 @@
 import {
+  AnalyzeConversationResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
   RemoveBackgroundResponse,
@@ -7,151 +8,22 @@ import {
   OLLAMA_MODEL,
   OLLAMA_URL,
   SYSTEMONE_MODEL,
+  SYSTEMONE_QUESTIONS,
   SYSTEMONE_URL,
 } from "./config";
 import { readPromptFile } from "./helpers";
 import { ChatMessage, Evaluation, NextQuestion } from "./types";
 
-// export async function sendMessage(
-//   input: string,
-//   history: ChatMessage[] = [],
-//   maxRetries = 2,
-// ): Promise<{ result: ResponseType; history: ChatMessage[] }> {
-//   const baseMessages: ChatMessage[] = [
-//     ...buildSystemMessages(),
-//     ...history,
-//     { role: "user", content: input },
-//   ];
-
-//   let lastRaw = "";
-//   let lastError = "";
-
-//   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-//     const messages: ChatMessage[] =
-//       attempt === 0
-//         ? baseMessages
-//         : [
-//             ...baseMessages,
-//             { role: "assistant", content: lastRaw },
-//             {
-//               role: "user",
-//               content: `Ta réponse précédente était invalide (erreur : ${lastError}). Réponds à nouveau uniquement avec un JSON valide respectant le schema.`,
-//             },
-//           ];
-
-//     // Compression avant l'envoi à Hermes
-//     const { messages: compressedMessages } = await compress(messages, {
-//       baseUrl: HEADROOM_URL,
-//       model: "hermes-agent",
-//     });
-
-//     const res = await fetch(HERMES_URL, {
-//       method: "POST",
-//       headers: {
-//         Authorization: HERMES_AUTH,
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         model: "hermes-agent",
-//         messages: compressedMessages,
-//         stream: false,
-//         response_format: {
-//           type: "json_schema",
-//           json_schema: { name: "response", schema: responseJsonSchema },
-//         },
-//       }),
-//     });
-
-//     if (!res.ok) {
-//       throw new Error(`Hermes HTTP error ${res.status}: ${await res.text()}`);
-//     }
-
-//     const data = await res.json();
-//     const content = data.choices?.[0]?.message?.content;
-
-//     if (typeof content !== "string") {
-//       lastError = "message.content absent ou non-string";
-//       lastRaw = JSON.stringify(data);
-//       continue;
-//     }
-
-//     lastRaw = content;
-
-//     try {
-//       const parsed = ResponseSchema.safeParse(
-//         JSON.parse(jsonrepair(extractJson(content))),
-//       );
-
-//       if (parsed.success) {
-//         const updatedHistory: ChatMessage[] = [
-//           ...history,
-//           { role: "user", content: input },
-//           { role: "assistant", content },
-//         ];
-//         return { result: parsed.data, history: updatedHistory };
-//       }
-
-//       lastError = parsed.error.message;
-//     } catch (e) {
-//       lastError = e instanceof Error ? e.message : String(e);
-//     }
-
-//     console.warn(
-//       `Hermes JSON invalide (tentative ${attempt + 1}/${maxRetries + 1}) :`,
-//       lastError,
-//     );
-//   }
-
-//   throw new Error(
-//     `Échec de validation JSON après ${maxRetries + 1} tentatives. Dernière erreur : ${lastError}\nDernière réponse brute : ${lastRaw}`,
-//   );
-// }
-
-export async function evaluate(conversation: string): Promise<Evaluation> {
+export async function analyseConversation(
+  conversation: string,
+): Promise<AnalyzeConversationResponse> {
   const res = await fetch(SYSTEMONE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: SYSTEMONE_MODEL,
       state: conversation,
-      questions: {
-        place: {
-          type: "noul",
-          instructions:
-            "Does the text describe where the memory takes place (type of place, surroundings)?",
-          criteria: {
-            true: "Yes, the place is described",
-            false: "No, the place is missing or vague",
-          },
-        },
-        object: {
-          type: "noul",
-          instructions:
-            "Does the text describe one central object (shape, color or material)?",
-          criteria: {
-            true: "Yes, an object is described",
-            false: "No, the object is missing or vague",
-          },
-        },
-        people: {
-          type: "noul",
-          instructions:
-            "Does the text describe the people present (appearance or actions)?",
-          criteria: {
-            true: "Yes, people are described",
-            false: "No, people are missing or vague",
-          },
-        },
-        moment: {
-          type: "noul",
-          instructions:
-            "Does the text describe one specific moment: what happened, when, at which season or time of day?",
-          criteria: {
-            true: "Yes, a specific moment is described",
-            false: "No, it stays general",
-          },
-        },
-      },
+      questions: SYSTEMONE_QUESTIONS,
     }),
   });
 
@@ -163,12 +35,11 @@ export async function evaluate(conversation: string): Promise<Evaluation> {
   const evaluation = Object.fromEntries(
     Object.entries(data).map(([key, value]) => [
       key,
-      (value as { confidence?: number }).confidence ?? 0,
+      (value as { noul?: number }).noul ?? 0,
     ]),
   ) as Evaluation;
 
-  console.log(data);
-  return evaluation;
+  return { success: true, analysis: evaluation };
 }
 
 export async function formulateQuestion(

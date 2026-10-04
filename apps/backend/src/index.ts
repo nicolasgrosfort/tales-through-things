@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import {
-  evaluate,
+  analyseConversation,
   generateImage,
   generateModel,
   removeBackground,
@@ -14,16 +14,25 @@ const port = Number(process.env.PORT) || 3001;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-app.post("/conversation", async (req, res) => {
+// app.post("/conversation", async (req, res) => {
+//   const { conversation } = req.body as {
+//     conversation: string;
+//   };
+
+//   const evaluation = await evaluate(conversation);
+//   res.json(evaluation);
+// });
+
+app.post("/analyze-conversation", async (req, res) => {
   const { conversation } = req.body as {
     conversation: string;
   };
 
-  const evaluation = await evaluate(conversation);
+  const evaluation = await analyseConversation(conversation);
   res.json(evaluation);
 });
 
-app.post("/image", async (req, res) => {
+app.post("/generate-image", async (req, res) => {
   const { prompt } = req.body as { prompt: string };
 
   const image = await generateImage(prompt);

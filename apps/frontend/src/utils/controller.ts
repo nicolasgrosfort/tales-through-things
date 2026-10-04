@@ -1,4 +1,5 @@
 import type {
+  AnalyzeConversationResponse,
   Evaluation,
   GenerateModelResponse,
   ImageGenerationResponse,
@@ -25,19 +26,30 @@ export async function handleConversation(userAnswer?: string) {
   const evaluation: Evaluation = await res.json();
 
   return evaluation;
+}
 
-  //   if (evaluation.question) {
-  //     addMessage({ role: "assistant", content: evaluation.question });
-  //   }
+export async function analyzeConversation(
+  conversation: string,
+): Promise<AnalyzeConversationResponse> {
+  const res = await fetch(`${API_URL}/analyze-conversation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation }),
+  });
 
-  //   addLog(`Question [${evaluation.questionId}]: ${evaluation.question}`);
-  //   return evaluation;
+  if (!res.ok) {
+    throw new Error(`Conversation analysis failed (${res.status})`);
+  }
+
+  const analysis = await res.json();
+
+  return analysis;
 }
 
 export const generateImage = async (
   prompt: string,
 ): Promise<ImageGenerationResponse> => {
-  const res = await fetch(`${API_URL}/image`, {
+  const res = await fetch(`${API_URL}/generate-image`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),

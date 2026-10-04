@@ -6,10 +6,7 @@ export type Message = {
 };
 
 export type Topic = (typeof TOPICS)[number];
-
 export type EvaluationKey = "overall" | Topic;
-
-// Une question "score" SystemOne par clé, renvoyée à plat (valeur 0-100)
 export type Evaluation = Record<EvaluationKey, number>;
 
 export type NextQuestion = {
@@ -39,10 +36,15 @@ export type GenerateModelResponse = {
 };
 
 export type RemoveBackgroundResponse = {
-  success: true;
+  success: boolean;
   filename: string;
   image_url: string;
   file_path: string;
   width: number;
   height: number;
+};
+
+export type AnalyzeConversationResponse = {
+  success: boolean;
+  analysis: Evaluation;
 };

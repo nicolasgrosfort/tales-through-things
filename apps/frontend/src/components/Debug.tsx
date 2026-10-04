@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  analyzeConversation,
   generateImage,
   generateModel,
   removeBackground,
@@ -11,6 +12,12 @@ import { Textfield } from "./Textfield";
 
 export const Debug = () => {
   const { addLog } = useLogStore();
+
+  const [conversation, setConversation] = useState(
+    "LLM: Think of a childhood memory that comes easily to mind. Who was with you?\nUser: My cousin Maxime. We often spent the holidays together.\nLLM: What did he look like back then? Do you remember his hair, his height, or what he wore?\nUser: He had brown hair that was always messy, and he was taller than me. He often wore an old red sweater.\nLLM: Did he always carry an object with him—something that reminds you of him?\nUser: Yes, he had a slightly worn blue backpack. He kept marbles and a flashlight in it.\nLLM: Do you remember how he carried it or what he did with it?\nUser: He wore it over one shoulder and opened it whenever he had a new idea for a game.\nLLM: What was he like?\nUser: He was full of energy and always making jokes. He was constantly coming up with new games.\nLLM: And what were you like around him?\nUser: I was more reserved. I followed him on his adventures, but usually let him make the decisions.\nLLM: What detail comes back to you most clearly when you think of him?\nUser: His big smile, his old red sweater, and his blue backpack full of treasures.",
+  );
+  const [conversationLoading, setConversationLoading] = useState(false);
+
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
   const [imagePrompt, setImagePrompt] = useState(
     "A playful, one-of-a-kind special edition of a classic handheld Game Boy, presented as a clean catalog object. Give it a bright blue casing with fun, distinctive details while keeping its buttons and screen clearly recognizable. Viewed from a 45-degree elevated angle, with its front, side and top surfaces visible. The entire Game Boy is fully visible, centered with generous margins. Straight-on product documentation, orthographic-looking perspective, sharp focus across the whole object. A single, uniform pastel yellow background, soft diffuse studio lighting and a subtle contact shadow directly beneath it. No extra objects, no patterns, no artistic composition.",
@@ -24,6 +31,19 @@ export const Debug = () => {
   const [modelImageUrl, setModelImageUrl] = useState("");
   const [modelLoading, setModelLoading] = useState(false);
   const [modelResult, setModelResult] = useState("");
+
+  const handleAnalyzeConversation = async (conversation: string) => {
+    setConversationLoading(true);
+    addLog(`Analyzing conversation:\n${conversation}`);
+    try {
+      const analysis = await analyzeConversation(conversation);
+      addLog(`Conversation analysis:\n${JSON.stringify(analysis, null, 2)}`);
+    } catch (e) {
+      addLog(`Conversation analysis error: ${String(e)}`);
+    } finally {
+      setConversationLoading(false);
+    }
+  };
 
   const handleGenerateImage = async (prompt: string) => {
     setImagePromptLoading(true);
@@ -77,6 +97,30 @@ export const Debug = () => {
     <div className="bg-black p-4">
       <h2 className="text-xl font-bold text-white mb-4">Debug</h2>
       <section className="grid grid-rows-[auto_auto] gap-2">
+        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
+          <Textfield
+            placeholder="Conversation"
+            value={conversation}
+            onChange={setConversation}
+            onSubmit={handleAnalyzeConversation}
+          />
+          <Button
+            label={
+              conversationLoading ? "Analyzing..." : "Analyze Conversation"
+            }
+            onClick={() => {
+              void handleAnalyzeConversation(conversation);
+            }}
+            disabled={conversationLoading || !conversation.trim()}
+          />
+        </div>
+
+        {imagePath && (
+          <img src={imagePath} width="200" height="200" alt="Generated" />
+        )}
+      </section>
+
+      <section className="grid grid-rows-[auto_auto] gap-2 mt-4">
         <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
           <Textfield
             placeholder="Image prompt"
