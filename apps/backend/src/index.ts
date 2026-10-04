@@ -1,7 +1,9 @@
 import cors from "cors";
 import express from "express";
+import { Analysis } from "../../shared/types";
 import {
   analyseConversation,
+  formulateQuestion,
   generateImage,
   generateModel,
   removeBackground,
@@ -14,14 +16,15 @@ const port = Number(process.env.PORT) || 3001;
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-// app.post("/conversation", async (req, res) => {
-//   const { conversation } = req.body as {
-//     conversation: string;
-//   };
+app.post("/ask-question", async (req, res) => {
+  const { conversation, analysis } = req.body as {
+    conversation: string;
+    analysis: Analysis;
+  };
 
-//   const evaluation = await evaluate(conversation);
-//   res.json(evaluation);
-// });
+  const question = await formulateQuestion(conversation, analysis);
+  res.json(question);
+});
 
 app.post("/analyze-conversation", async (req, res) => {
   const { conversation } = req.body as {

@@ -1,6 +1,6 @@
 import type {
+  Analysis,
   AnalyzeConversationResponse,
-  Evaluation,
   GenerateModelResponse,
   ImageGenerationResponse,
   RemoveBackgroundResponse,
@@ -23,9 +23,30 @@ export async function handleConversation(userAnswer?: string) {
     throw new Error(`Conversation handling failed (${res.status})`);
   }
 
-  const evaluation: Evaluation = await res.json();
+  const analysis: Analysis = await res.json();
 
-  return evaluation;
+  return analysis;
+}
+
+export async function formulateQuestion(
+  conversation: string,
+  analysis: Analysis | null,
+): Promise<string> {
+  const res = await fetch(`${API_URL}/ask-question`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation, analysis }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Question formulation failed (${res.status})`);
+  }
+
+  const data = await res.json();
+
+  console.log("Formulated question response:", data); // Log the entire response for debugging
+
+  return data.question;
 }
 
 export async function analyzeConversation(

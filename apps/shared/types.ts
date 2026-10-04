@@ -1,14 +1,5 @@
 import type { TOPICS } from "./config";
 
-export type Message = {
-  role: "system" | "user" | "assistant";
-  content: string;
-};
-
-export type Topic = (typeof TOPICS)[number];
-export type EvaluationKey = "overall" | Topic;
-export type Evaluation = Record<EvaluationKey, number>;
-
 export type NextQuestion = {
   done: boolean;
   questionId?: string;
@@ -44,7 +35,15 @@ export type RemoveBackgroundResponse = {
   height: number;
 };
 
+export type Topic = (typeof TOPICS)[number];
+export type AnalysisKey = "overall" | Topic;
+export type Analysis = Record<AnalysisKey, number>;
 export type AnalyzeConversationResponse = {
   success: boolean;
-  analysis: Evaluation;
+  analysis: Analysis;
+};
+
+export type FormulatedQuestionResponse = {
+  success: boolean;
+  question: string;
 };

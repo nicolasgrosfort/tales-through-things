@@ -1,6 +1,8 @@
 import { useState } from "react";
+import type { Analysis } from "../../../shared/types";
 import {
   analyzeConversation,
+  formulateQuestion,
   generateImage,
   generateModel,
   removeBackground,
@@ -17,6 +19,9 @@ export const Debug = () => {
     "LLM: Think of a childhood memory that comes easily to mind. Who was with you?\nUser: My cousin Maxime. We often spent the holidays together.\nLLM: What did he look like back then? Do you remember his hair, his height, or what he wore?\nUser: He had brown hair that was always messy, and he was taller than me. He often wore an old red sweater.\nLLM: Did he always carry an object with him—something that reminds you of him?\nUser: Yes, he had a slightly worn blue backpack. He kept marbles and a flashlight in it.\nLLM: Do you remember how he carried it or what he did with it?\nUser: He wore it over one shoulder and opened it whenever he had a new idea for a game.\nLLM: What was he like?\nUser: He was full of energy and always making jokes. He was constantly coming up with new games.\nLLM: And what were you like around him?\nUser: I was more reserved. I followed him on his adventures, but usually let him make the decisions.\nLLM: What detail comes back to you most clearly when you think of him?\nUser: His big smile, his old red sweater, and his blue backpack full of treasures.",
   );
   const [conversationLoading, setConversationLoading] = useState(false);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [formulateQuestionLoading, setFormulateQuestionLoading] =
+    useState(false);
 
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
   const [imagePrompt, setImagePrompt] = useState(
@@ -32,12 +37,26 @@ export const Debug = () => {
   const [modelLoading, setModelLoading] = useState(false);
   const [modelResult, setModelResult] = useState("");
 
+  const handleFormulateQuestion = async (conversation: string) => {
+    setFormulateQuestionLoading(true);
+    addLog(`Formulating question from conversation:\n${conversation}`);
+    try {
+      const question = await formulateQuestion(conversation, analysis);
+      addLog(`Formulated question:\n${question}`);
+    } catch (e) {
+      addLog(`Formulate question error: ${String(e)}`);
+    } finally {
+      setFormulateQuestionLoading(false);
+    }
+  };
+
   const handleAnalyzeConversation = async (conversation: string) => {
     setConversationLoading(true);
     addLog(`Analyzing conversation:\n${conversation}`);
     try {
       const analysis = await analyzeConversation(conversation);
       addLog(`Conversation analysis:\n${JSON.stringify(analysis, null, 2)}`);
+      setAnalysis(analysis.analysis);
     } catch (e) {
       addLog(`Conversation analysis error: ${String(e)}`);
     } finally {
@@ -112,6 +131,30 @@ export const Debug = () => {
               void handleAnalyzeConversation(conversation);
             }}
             disabled={conversationLoading || !conversation.trim()}
+          />
+        </div>
+
+        {imagePath && (
+          <img src={imagePath} width="200" height="200" alt="Generated" />
+        )}
+      </section>
+
+      <section className="grid grid-rows-[auto_auto] gap-2 mt-4">
+        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
+          <Textfield
+            placeholder="Conversation"
+            value={conversation}
+            onChange={setConversation}
+            onSubmit={handleFormulateQuestion}
+          />
+          <Button
+            label={
+              formulateQuestionLoading ? "Generating..." : "Formulate Question"
+            }
+            onClick={() => {
+              void handleFormulateQuestion(conversation);
+            }}
+            disabled={formulateQuestionLoading || !conversation.trim()}
           />
         </div>
 

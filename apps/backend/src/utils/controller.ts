@@ -1,5 +1,7 @@
 import {
+  Analysis,
   AnalyzeConversationResponse,
+  FormulatedQuestionResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
   RemoveBackgroundResponse,
@@ -12,7 +14,7 @@ import {
   SYSTEMONE_URL,
 } from "./config";
 import { readPromptFile } from "./helpers";
-import { ChatMessage, Evaluation, NextQuestion } from "./types";
+import { Evaluation } from "./types";
 
 export async function analyseConversation(
   conversation: string,
@@ -44,25 +46,16 @@ export async function analyseConversation(
 
 export async function formulateQuestion(
   conversation: string,
-  next: NextQuestion,
-): Promise<string | undefined> {
-  const template = next.question;
-  if (!template) return undefined;
-
-  const messages: ChatMessage[] = [
+  analysis: Analysis,
+): Promise<FormulatedQuestionResponse> {
+  const messages = [
     {
       role: "system",
-      content: `
-        ${readPromptFile("INTERVIEWER.md")}
-        Tu reçois la conversation en cours et une question-gabarit à poser ensuite.
-        Reformule ce gabarit en une seule question, naturelle et ouverte, qui rebondit sur la dernière réponse de la personne.
-        Garde l'intention du gabarit, remplace les placeholders entre crochets ([sujet], [l'objet]…) par ce qui a été dit, n'invente aucun détail et ne suggère aucune réponse.
-        Réponds uniquement avec la question, sans guillemets ni commentaire.
-      `,
+      content: `${readPromptFile("INTERVIEWER.md")}`,
     },
     {
       role: "user",
-      content: `Conversation :\n${conversation}\n\nGabarit : ${template}`,
+      content: `Conversation :\n${conversation}\n\Analyse : ${analysis}`,
     },
   ];
 
@@ -76,12 +69,17 @@ export async function formulateQuestion(
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const content = (await res.json()).choices?.[0]?.message?.content;
-    if (typeof content === "string" && content.trim()) return content.trim();
+    if (typeof content === "string" && content.trim())
+      return { success: true, question: content.trim() };
   } catch (e) {
     console.warn("Formulation de la question échouée, gabarit utilisé :", e);
   }
 
-  return template;
+  return {
+    success: false,
+    question:
+      "Bienvenue ! Peux-tu me raconter un moment dont tu te souviens encore aujourd'hui ?",
+  };
 }
 
 export async function generateImage(
