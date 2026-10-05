@@ -49,6 +49,7 @@ type PipelineState = {
     | "transcribing"
     | "analyzing"
     | "formulating"
+    | "composing"
     | "imaginating"
     | "masking"
     | "generating";
@@ -84,9 +85,11 @@ type ResultState = {
   analysis: Analysis | null;
   imageUrl: string;
   modelUrl: string;
+  haiku: string;
   setAnalysis: (analysis: Analysis | null) => void;
   setImageUrl: (imageUrl: string) => void;
   setModelUrl: (modelUrl: string) => void;
+  setHaiku: (haiku: string) => void;
   reset: () => void;
 };
 
@@ -94,8 +97,10 @@ export const useResultStore = create<ResultState>()((set) => ({
   analysis: null,
   imageUrl: "",
   modelUrl: "",
+  haiku: "",
   setAnalysis: (analysis) => set({ analysis }),
   setImageUrl: (imageUrl) => set({ imageUrl }),
   setModelUrl: (modelUrl) => set({ modelUrl }),
-  reset: () => set({ analysis: null, imageUrl: "", modelUrl: "" }),
+  setHaiku: (haiku) => set({ haiku }),
+  reset: () => set({ analysis: null, imageUrl: "", modelUrl: "", haiku: "" }),
 }));

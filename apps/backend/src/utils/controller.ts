@@ -3,6 +3,7 @@ import {
   AnalyzeConversationResponse,
   FormulatedQuestionResponse,
   GenerateModelResponse,
+  HaikuGenerationResponse,
   ImageGenerationResponse,
   ImagePromptGenerationResponse,
   Progression,
@@ -80,6 +81,36 @@ export async function generateImagePrompt(
   }
 
   return { success: true, prompt: prompt.trim() };
+}
+
+export async function generateHaiku(
+  conversation: string,
+): Promise<HaikuGenerationResponse> {
+  const res = await fetch(OLLAMA_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: OLLAMA_MODEL,
+      messages: [
+        { role: "system", content: readPromptFile("HAIKU.md") },
+        { role: "user", content: `Conversation :\n${conversation}` },
+      ],
+      stream: false,
+      think: false,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Haiku generation failed (${res.status})`);
+  }
+
+  const haiku = (await res.json()).message?.content;
+
+  if (typeof haiku !== "string" || !haiku.trim()) {
+    throw new Error("Invalid haiku received from the API");
+  }
+
+  return { success: true, haiku: haiku.trim() };
 }
 
 export async function formulateQuestion(

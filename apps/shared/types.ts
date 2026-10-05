@@ -48,6 +48,11 @@ export type AnalyzeConversationResponse = {
   analysis: Analysis;
 };
 
+export type HaikuGenerationResponse = {
+  success: boolean;
+  haiku: string;
+};
+
 export type FormulatedQuestionResponse = {
   success: boolean;
   question: string;

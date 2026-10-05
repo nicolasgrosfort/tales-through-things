@@ -5,6 +5,7 @@ import {
   analyseConversation,
   formulateQuestion,
   generateImage,
+  generateHaiku,
   generateImagePrompt,
   generateModel,
   removeBackground,
@@ -42,6 +43,16 @@ app.post("/generate-image-prompt", async (req, res) => {
 
   const imagePrompt = await generateImagePrompt(conversation);
   res.json(imagePrompt);
+});
+
+app.post("/generate-haiku", async (req, res) => {
+  const { conversation } = req.body as { conversation: string };
+
+  try {
+    res.json(await generateHaiku(conversation));
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
 });
 
 app.post("/generate-image", async (req, res) => {

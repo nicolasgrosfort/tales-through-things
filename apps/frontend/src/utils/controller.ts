@@ -2,6 +2,7 @@ import type {
   Analysis,
   AnalyzeConversationResponse,
   GenerateModelResponse,
+  HaikuGenerationResponse,
   ImageGenerationResponse,
   ImagePromptGenerationResponse,
   Progression,
@@ -65,6 +66,22 @@ export async function generateImagePrompt(
 
   const data = await res.json();
   return data;
+}
+
+export async function generateHaiku(
+  conversation: string,
+): Promise<HaikuGenerationResponse> {
+  const res = await fetch(`${API_URL}/generate-haiku`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Haiku generation failed (${res.status})`);
+  }
+
+  return res.json();
 }
 
 export async function analyzeConversation(

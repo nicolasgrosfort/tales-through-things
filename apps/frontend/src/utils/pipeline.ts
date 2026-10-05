@@ -4,6 +4,7 @@ import {
   analyzeConversation,
   formulateQuestion,
   generateImage,
+  generateHaiku,
   generateImagePrompt,
   generateModel,
   removeBackground,
@@ -32,13 +33,26 @@ export const resetExperience = () => {
 const generateMemory = async (isStale: () => boolean) => {
   const { add } = useLogStore.getState();
   const { setStatus } = usePipelineStore.getState();
-  const { setImageUrl, setModelUrl } = useResultStore.getState();
+  const { setImageUrl, setModelUrl, setHaiku } = useResultStore.getState();
+
+  const conversation = JSON.stringify(
+    useConversationStore.getState().conversation,
+  );
+
+  // The haiku is a bonus: a failure must not block the model generation
+  setStatus("composing");
+  add("Writing haiku...");
+  try {
+    const { haiku } = await generateHaiku(conversation);
+    if (isStale()) return;
+    setHaiku(haiku);
+  } catch (e) {
+    add(`Haiku error: ${String(e)}`);
+  }
 
   setStatus("imaginating");
   add("Generating image prompt...");
-  const { prompt } = await generateImagePrompt(
-    JSON.stringify(useConversationStore.getState().conversation),
-  );
+  const { prompt } = await generateImagePrompt(conversation);
   if (isStale()) return;
 
   add("Generating image...");

@@ -21,6 +21,7 @@ const STATUS_LABELS: Partial<
   transcribing: "Thinking...",
   analyzing: "Thinking...",
   formulating: "Thinking...",
+  composing: "Writing your haiku...",
   imaginating: "Imagining your memory...",
   masking: "Shaping your memory...",
   generating: "Bringing it to life...",
@@ -32,6 +33,7 @@ export const Main = () => {
   const passed = useProgressionStore((s) => s.passed);
   const conversation = useConversationStore((s) => s.conversation);
   const modelUrl = useResultStore((s) => s.modelUrl);
+  const haiku = useResultStore((s) => s.haiku);
 
   const isRecording = status === "recording";
   const isBusy = status !== "idle";
@@ -71,7 +73,16 @@ export const Main = () => {
         >
           <div className="size-full p-10 rounded-full overflow-hidden bg-black text-white text-center flex justify-center flex-col h-full gap-4">
             {modelUrl ? (
-              <Scene model={modelUrl} pointSize={0.002} />
+              <>
+                <div className="flex-1 min-h-0">
+                  <Scene model={modelUrl} pointSize={0.002} />
+                </div>
+                {haiku && (
+                  <p className="text-sm italic whitespace-pre-line text-white/80">
+                    {haiku}
+                  </p>
+                )}
+              </>
             ) : isBusy ? (
               <ScrambleText
                 text={STATUS_LABELS[status] ?? ""}
