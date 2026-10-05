@@ -19,3 +19,7 @@ export const TOPICS = [
   "meaning",
   "transmission",
 ] as const;
+
+export const PROGRESSION = {
+  MAX_TURNS: 5,
+};

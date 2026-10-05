@@ -133,10 +133,6 @@ export const Debug = () => {
             disabled={conversationLoading || !conversation.trim()}
           />
         </div>
-
-        {imagePath && (
-          <img src={imagePath} width="200" height="200" alt="Generated" />
-        )}
       </section>
 
       <section className="grid grid-rows-[auto_auto] gap-2 mt-4">
@@ -157,10 +153,6 @@ export const Debug = () => {
             disabled={formulateQuestionLoading || !conversation.trim()}
           />
         </div>
-
-        {imagePath && (
-          <img src={imagePath} width="200" height="200" alt="Generated" />
-        )}
       </section>
 
       <section className="grid grid-rows-[auto_auto] gap-2 mt-4">

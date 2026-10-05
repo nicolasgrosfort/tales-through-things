@@ -47,3 +47,8 @@ export type FormulatedQuestionResponse = {
   success: boolean;
   question: string;
 };
+
+export type Progression = {
+  passed: number;
+  remaining: number;
+};

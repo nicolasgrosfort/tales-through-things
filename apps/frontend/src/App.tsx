@@ -4,7 +4,11 @@ import { Logs } from "./components/Logs";
 import { Whisper } from "./components/Whisper";
 import { API_URL, RESET_DELAY } from "./utils/config";
 import { handleConversation } from "./utils/controller";
-import { useConversationStore, useLogStore } from "./utils/stores";
+import {
+  useConversationStore,
+  useLogStore,
+  useProgressionStore,
+} from "./utils/stores";
 
 const INITIAL_QUESTION = "Do you want to generate a memory ?";
 
@@ -12,7 +16,14 @@ function App() {
   const inactivityTimer = useRef<number | null>(null);
   const countdownInterval = useRef<number | null>(null);
 
-  const addLog = useLogStore((state) => state.addLog);
+  const { addLog } = useLogStore();
+  const { conversation, reset: resetConversation } = useConversationStore();
+  const {
+    passed: progressionPassed,
+    remaining: progressionRemaining,
+    increase: increaseProgression,
+    reset: resetProgression,
+  } = useProgressionStore();
 
   const [userAnswer, setUserAnswer] = useState("");
   const [modelQuestion, setModelQuestion] = useState(() => {
@@ -82,31 +93,13 @@ function App() {
       });
   };
 
-  // const handleModelGeneration = (image_url: string) => {
-  //   setIsLoading(true);
-  //   addLog("Model generation started");
-
-  //   fetch(`${API_URL}/model?image_path=${encodeURIComponent(image_url)}`, {
-  //     method: "POST",
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       console.log("Model generation response from backend:", data);
-  //     })
-  //     .finally(() => {
-  //       setIsLoading(false);
-  //       startInactivityTimer();
-  //       addLog("Model generation completed");
-  //     });
-  // };
-
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
+    addLog("Reset experience");
     resetInactivityTimer();
-
-    useConversationStore.getState().resetConversation();
+    resetConversation();
+    resetProgression();
     setModelQuestion("");
-    addLog("Reset");
-  };
+  }, []);
 
   const handleRecordStart = useCallback(() => {
     resetInactivityTimer();

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { PROGRESSION } from "../../../shared/config";
 import type { Log, Message } from "./types";
 
 // **** LOGS ****
@@ -18,7 +19,7 @@ export const useLogStore = create<LogState>()((set) => ({
 type ConversationState = {
   conversation: Message[];
   addMessage: (message: Message) => void;
-  resetConversation: () => void;
+  reset: () => void;
 };
 
 export const useConversationStore = create<ConversationState>()((set) => ({
@@ -27,16 +28,34 @@ export const useConversationStore = create<ConversationState>()((set) => ({
     set((state) => ({
       conversation: [...state.conversation, message],
     })),
-  resetConversation: () => set({ conversation: [] }),
+  reset: () => set({ conversation: [] }),
 }));
 
 //** PIPELINE **//
-export const usePipelineStore = create<{
+type PipelineState = {
   status: "idle" | "flux" | "sam3d" | "birefnet";
   run: () => void;
-}>()((set) => ({
+};
+
+export const usePipelineStore = create<PipelineState>()((set) => ({
   status: "idle",
   run: async () => {
     set({ status: "flux" });
   },
+}));
+
+//** PROGRESSION **//
+type ProgressionState = {
+  passed: number;
+  remaining: number;
+  increase: (passed: number, remaining: number) => void;
+  reset: () => void;
+};
+
+export const useProgressionStore = create<ProgressionState>()((set) => ({
+  passed: 0,
+  remaining: PROGRESSION.MAX_TURNS,
+  increase: (passed, remaining) =>
+    set({ passed: passed + 1, remaining: remaining - 1 }),
+  reset: () => set({ passed: 0, remaining: 0 }),
 }));

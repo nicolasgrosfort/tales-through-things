@@ -4,6 +4,7 @@ import {
   FormulatedQuestionResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
+  Progression,
   RemoveBackgroundResponse,
 } from "../../../shared/types";
 import {
@@ -47,6 +48,7 @@ export async function analyseConversation(
 export async function formulateQuestion(
   conversation: string,
   analysis: Analysis,
+  progression: Progression,
 ): Promise<FormulatedQuestionResponse> {
   const messages = [
     {
@@ -55,7 +57,7 @@ export async function formulateQuestion(
     },
     {
       role: "user",
-      content: `Conversation :\n${conversation}\n\Analyse : ${analysis}`,
+      content: `Conversation :\n${conversation}\n\Analyse : ${analysis}\n\Progression : ${progression}`,
     },
   ];
 
