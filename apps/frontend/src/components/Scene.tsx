@@ -20,7 +20,9 @@ import {
 } from "three/webgpu";
 
 const MODEL_POSITION: [number, number, number] = [0, 0, 4];
-const CAMERA_DISTANCE = 1;
+// Narrow FOV keeps the perspective distortion low; the distance compensates it
+const CAMERA_FOV = 25;
+const CAMERA_DISTANCE = 4;
 const APPEAR_DURATION = 1; // seconds
 const REVEAL_SOFTNESS = 0.15;
 const ARRIVAL_PATCHES = 5; // noise frequency of the arrival patches
@@ -43,10 +45,20 @@ export const Scene = ({
   return (
     <div className="w-full h-full">
       <Canvas
+        camera={{
+          fov: CAMERA_FOV,
+          position: [
+            MODEL_POSITION[0],
+            MODEL_POSITION[1],
+            MODEL_POSITION[2] + CAMERA_DISTANCE,
+          ],
+        }}
         gl={async (props) => {
-          const renderer = new WebGPURenderer(
-            props as ConstructorParameters<typeof WebGPURenderer>[0],
-          );
+          // MSAA smooths the near-pixel sized points that otherwise shimmer
+          const renderer = new WebGPURenderer({
+            ...(props as ConstructorParameters<typeof WebGPURenderer>[0]),
+            antialias: true,
+          });
           await renderer.init();
           return renderer;
         }}

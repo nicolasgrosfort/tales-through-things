@@ -27,7 +27,7 @@ type ConversationState = {
 const INITIAL_CONVERSATION: Conversation[] = [
   {
     role: "assistant",
-    content: "What memory would you like us to record today?",
+    content: "What memory would you like to record today?",
   },
 ];
 
@@ -96,7 +96,7 @@ type ResultState = {
 export const useResultStore = create<ResultState>()((set) => ({
   analysis: null,
   imageUrl: "",
-  modelUrl: "",
+  modelUrl: "/models/gameboy.ply",
   haiku: "",
   setAnalysis: (analysis) => set({ analysis }),
   setImageUrl: (imageUrl) => set({ imageUrl }),
