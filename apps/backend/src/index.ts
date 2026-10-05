@@ -5,6 +5,7 @@ import {
   analyseConversation,
   formulateQuestion,
   generateImage,
+  generateImagePrompt,
   generateModel,
   removeBackground,
 } from "./utils/controller";
@@ -34,6 +35,13 @@ app.post("/analyze-conversation", async (req, res) => {
 
   const evaluation = await analyseConversation(conversation);
   res.json(evaluation);
+});
+
+app.post("/generate-image-prompt", async (req, res) => {
+  const { conversation } = req.body as { conversation: string };
+
+  const imagePrompt = await generateImagePrompt(conversation);
+  res.json(imagePrompt);
 });
 
 app.post("/generate-image", async (req, res) => {

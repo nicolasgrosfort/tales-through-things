@@ -3,6 +3,7 @@ import type {
   AnalyzeConversationResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
+  ImagePromptGenerationResponse,
   Progression,
   RemoveBackgroundResponse,
 } from "../../../shared/types";
@@ -49,6 +50,23 @@ export async function formulateQuestion(
   console.log("Formulated question response:", data); // Log the entire response for debugging
 
   return data.question;
+}
+
+export async function generateImagePrompt(
+  conversation: string,
+): Promise<ImagePromptGenerationResponse> {
+  const res = await fetch(`${API_URL}/generate-image-prompt`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ conversation }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Image prompt generation failed (${res.status})`);
+  }
+
+  const data = await res.json();
+  return data;
 }
 
 export async function analyzeConversation(

@@ -2,9 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "os";
 import z from "zod";
-import { MAX_TURNS } from "./config";
 import { ResponseSchema } from "./schemas";
-import { ChatMessage, DecisionAnswer } from "./types";
+import { DecisionAnswer } from "./types";
 
 export const getLocalIp = (): string => {
   const interfaces = os.networkInterfaces();
@@ -16,10 +15,6 @@ export const getLocalIp = (): string => {
     }
   }
   return "localhost";
-};
-
-export const trimHistory = (history: ChatMessage[]): ChatMessage[] => {
-  return history.slice(-MAX_TURNS * 2);
 };
 
 export const responseJsonSchema = z.toJSONSchema(ResponseSchema);
@@ -44,8 +39,3 @@ export const readNoul = (a?: DecisionAnswer): number =>
   (typeof a?.probability === "number" ? a.probability : undefined) ??
   a?.probabilities?.["true"] ??
   0;
-
-export const toTranscript = (history: ChatMessage[]) =>
-  history
-    .map((m) => `${m.role === "assistant" ? "Q" : "R"} : ${m.content}`)
-    .join("\n");

@@ -35,6 +35,11 @@ export type RemoveBackgroundResponse = {
   height: number;
 };
 
+export type ImagePromptGenerationResponse = {
+  success: boolean;
+  prompt: string;
+};
+
 export type Topic = (typeof TOPICS)[number];
 export type AnalysisKey = "overall" | Topic;
 export type Analysis = Record<AnalysisKey, number>;

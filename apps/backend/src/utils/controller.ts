@@ -4,6 +4,7 @@ import {
   FormulatedQuestionResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
+  ImagePromptGenerationResponse,
   Progression,
   RemoveBackgroundResponse,
 } from "../../../shared/types";
@@ -42,6 +43,42 @@ export async function analyseConversation(
   ) as Analysis;
 
   return { success: true, analysis };
+}
+
+export async function generateImagePrompt(
+  conversation: string,
+): Promise<ImagePromptGenerationResponse> {
+  const res = await fetch(`${OLLAMA_URL}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: OLLAMA_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: readPromptFile("IMAGE.md"),
+        },
+        {
+          role: "user",
+          content: `Conversation :\n${conversation}`,
+        },
+      ],
+      stream: false,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Image prompt generation failed (${res.status})`);
+  }
+
+  const data = await res.json();
+  const prompt = data.choices?.[0]?.message?.content;
+
+  if (typeof prompt !== "string" || !prompt.trim()) {
+    throw new Error("Invalid image prompt received from the API");
+  }
+
+  return { success: true, prompt: prompt.trim() };
 }
 
 export async function formulateQuestion(

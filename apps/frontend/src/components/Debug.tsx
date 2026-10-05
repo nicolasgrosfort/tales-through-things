@@ -4,6 +4,7 @@ import {
   analyzeConversation,
   formulateQuestion,
   generateImage,
+  generateImagePrompt,
   generateModel,
   removeBackground,
 } from "../utils/controller";
@@ -116,9 +117,31 @@ export const Debug = () => {
     }
   };
 
+  const handleGenerateImagePrompt = async () => {
+    setImagePromptLoading(true);
+    addLog(`Generating image prompt from conversation:\n${conversation}`);
+    try {
+      const { prompt } = await generateImagePrompt(conversation);
+      addLog(`Image prompt generated:\n${JSON.stringify(prompt, null, 2)}`);
+      setImagePrompt(prompt);
+    } catch (e) {
+      addLog(`Generate image prompt error: ${String(e)}`);
+    } finally {
+      setImagePromptLoading(false);
+    }
+  };
+
   return (
     <div className="bg-black p-4">
       <h2 className="text-xl font-bold text-white mb-4">Debug</h2>
+
+      <section>
+        <Button
+          label="Generate image prompt"
+          onClick={handleGenerateImagePrompt}
+        />
+      </section>
+
       <section className="grid grid-rows-[auto_auto] gap-2">
         <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
           <Textfield
