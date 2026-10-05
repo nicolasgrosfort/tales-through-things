@@ -12,6 +12,7 @@ import { Gradient } from "./Gradient";
 import { ProgressRing } from "./ProgressRing";
 import { PushToTalk } from "./PushToTalk";
 import { Scene } from "./Scene";
+import { ScrambleText } from "./ScrambleText";
 
 const STATUS_LABELS: Partial<
   Record<ReturnType<typeof usePipelineStore.getState>["status"], string>
@@ -72,10 +73,16 @@ export const Main = () => {
             {modelUrl ? (
               <Scene model={modelUrl} pointSize={0.002} />
             ) : isBusy ? (
-              <p className="text-4xl text-pretty">{STATUS_LABELS[status]}</p>
+              <ScrambleText
+                text={STATUS_LABELS[status] ?? ""}
+                className="text-4xl text-pretty"
+              />
             ) : (
               <>
-                <p className="text-4xl text-pretty">{lastQuestion}</p>
+                <ScrambleText
+                  text={lastQuestion ?? ""}
+                  className="text-4xl text-pretty"
+                />
                 <p className="text-xl">
                   Hold the button to{" "}
                   <span className="text-blue-500">speak</span>
