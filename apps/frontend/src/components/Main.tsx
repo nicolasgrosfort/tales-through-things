@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
+import { PROGRESSION } from "../../../shared/config";
 import { RESET_DELAY } from "../utils/config";
-import { useLogStore } from "../utils/stores";
+import { useLogStore, useProgressionStore } from "../utils/stores";
 import { Gradient } from "./Gradient";
 import { ProgressRing } from "./ProgressRing";
 import { PushToTalk } from "./PushToTalk";
@@ -8,14 +9,9 @@ import { Scene } from "./Scene";
 
 const model = undefined;
 
-export const Main = ({
-  gradient = 0,
-  progress = 0,
-}: {
-  gradient?: number;
-  progress?: number;
-}) => {
+export const Main = () => {
   const log = useLogStore();
+  const progression = useProgressionStore();
 
   const [countdown, setCountdown] = useState(RESET_DELAY);
   const [isRecording, setIsRecording] = useState(false);
@@ -68,6 +64,9 @@ export const Main = ({
     resetInactivityTimer();
   }, []);
 
+  const computedGradient = isRecording ? 100 : 0;
+  const computedProgress = (progression.passed / PROGRESSION.MAX_TURNS) * 100;
+
   return (
     <main>
       {/* <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
@@ -75,15 +74,18 @@ export const Main = ({
         Reset automatique dans {countdown}s
       </p> */}
       <PushToTalk
-        onRecordStart={() => setIsRecording(true)}
+        onRecordStart={() => {
+          setIsRecording(true);
+          progression.increase();
+        }}
         onRecordEnd={() => setIsRecording(false)}
       />
       <Gradient
-        percent={isRecording ? 100 : gradient}
+        percent={computedGradient}
         className="h-screen w-screen grid place-items-center"
       >
         <ProgressRing
-          percent={progress}
+          percent={computedProgress}
           className="aspect-square w-118 max-h-118"
         >
           <div className="size-full p-10 rounded-full overflow-hidden bg-black text-white text-center flex justify-center flex-col h-full gap-4">

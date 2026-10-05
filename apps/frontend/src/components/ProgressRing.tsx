@@ -17,6 +17,7 @@ export const ProgressRing = ({
   className?: string;
   children?: ReactNode;
 }) => {
+  // A full ring overshoots slightly: a dash of exactly 100 can leave a hairline gap
   const progress = Math.min(100, Math.max(0, percent));
 
   return (
@@ -30,10 +31,11 @@ export const ProgressRing = ({
           cy={50}
           r={50 + THICKNESS / 2}
           fill="none"
+          className="transition-[stroke-dasharray] duration-1000 ease-in-out"
           stroke={RING_COLOR}
           strokeWidth={THICKNESS}
           pathLength={100}
-          strokeDasharray={`${progress} 100`}
+          strokeDasharray={`${progress >= 100 ? 101 : progress} 100`}
         />
       </svg>
       {children}
