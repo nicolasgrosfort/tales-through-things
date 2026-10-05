@@ -1,13 +1,6 @@
 import z from "zod";
 import { ResponseSchema } from "./schemas";
 
-export type {
-  Message as ChatMessage,
-  Evaluation,
-  NextQuestion,
-  Topic,
-} from "../../../shared/types";
-
 export type ResponseType = z.infer<typeof ResponseSchema>;
 
 export type Status =

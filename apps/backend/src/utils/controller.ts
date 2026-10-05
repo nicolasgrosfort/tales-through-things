@@ -15,7 +15,6 @@ import {
   SYSTEMONE_URL,
 } from "./config";
 import { readPromptFile } from "./helpers";
-import { Evaluation } from "./types";
 
 export async function analyseConversation(
   conversation: string,
@@ -35,14 +34,14 @@ export async function analyseConversation(
   }
 
   const data = (await res.json()).answers;
-  const evaluation = Object.fromEntries(
+  const analysis = Object.fromEntries(
     Object.entries(data).map(([key, value]) => [
       key,
       (value as { noul?: number }).noul ?? 0,
     ]),
-  ) as Evaluation;
+  ) as Analysis;
 
-  return { success: true, analysis: evaluation };
+  return { success: true, analysis };
 }
 
 export async function formulateQuestion(

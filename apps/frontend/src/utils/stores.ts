@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { PROGRESSION } from "../../../shared/config";
-import type { Log, Message } from "./types";
+import type { Conversation } from "../../../shared/types";
+import type { Log } from "./types";
 
 // **** LOGS ****
 type LogState = {
@@ -17,16 +18,22 @@ export const useLogStore = create<LogState>()((set) => ({
 
 // **** CONVERSATION ****
 type ConversationState = {
-  conversation: Message[];
-  addMessage: (message: Message) => void;
+  conversation: Conversation[];
+  addConversation: (conversation: Conversation) => void;
   reset: () => void;
 };
 
 export const useConversationStore = create<ConversationState>()((set) => ({
-  conversation: [],
-  addMessage: (message) =>
+  conversation: [
+    {
+      role: "assistant",
+      content:
+        "Bienvenue ! Peux-tu me raconter un moment dont tu te souviens encore aujourd'hui ?",
+    },
+  ],
+  addConversation: (conversation) =>
     set((state) => ({
-      conversation: [...state.conversation, message],
+      conversation: [...state.conversation, conversation],
     })),
   reset: () => set({ conversation: [] }),
 }));

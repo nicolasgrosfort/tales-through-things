@@ -25,5 +25,3 @@ export type StateResponse = {
 };
 
 export type Log = string;
-
-export type { Message, NextQuestion } from "../../../shared/types";

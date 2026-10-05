@@ -52,3 +52,8 @@ export type Progression = {
   passed: number;
   remaining: number;
 };
+
+export type Conversation = {
+  role: "user" | "assistant";
+  content: string;
+};
