@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PROGRESSION } from "../../../shared/config";
-import { RESET_DELAY } from "../utils/config";
+import { RESET_COUNTDOWN_AFTER, RESET_DELAY } from "../utils/config";
 import { resetExperience, runTurn } from "../utils/pipeline";
 import {
   useConversationStore,
@@ -40,17 +40,37 @@ export const Main = () => {
 
   // Reset the experience after a period of inactivity. The timer restarts on
   // every status or conversation change, and never fires mid-pipeline.
+  // The countdown only runs while it is the user's turn (or the experience is
+  // over), and is displayed to the user.
+  const [remaining, setRemaining] = useState(RESET_DELAY);
   useEffect(() => {
+    setRemaining(RESET_DELAY);
     if (status !== "idle") return;
-    const timer = window.setTimeout(resetExperience, RESET_DELAY * 1000);
-    return () => clearTimeout(timer);
+    const deadline = Date.now() + RESET_DELAY * 1000;
+    const interval = window.setInterval(() => {
+      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      setRemaining(left);
+      if (left === 0) {
+        clearInterval(interval);
+        resetExperience();
+      }
+    }, 250);
+    return () => clearInterval(interval);
   }, [status, conversation]);
 
   const lastQuestion = [...conversation]
     .reverse()
     .find((msg) => msg.role === "assistant")?.content;
 
-  const computedGradient = isRecording ? 100 : 0;
+  const showCountdown =
+    !isBusy && remaining <= RESET_DELAY - RESET_COUNTDOWN_AFTER;
+  const countdown = showCountdown && (
+    <p className="text-xs text-white/40 tabular-nums">
+      Resetting in {remaining}s
+    </p>
+  );
+
+  const computedGradient =isRecording ? 100 : 0;
   const computedProgress = (passed / PROGRESSION.MAX_TURNS) * 100;
 
   return (
@@ -82,6 +102,7 @@ export const Main = () => {
                     {haiku}
                   </p>
                 )}
+                {countdown}
               </>
             ) : isBusy ? (
               <ScrambleText
@@ -98,6 +119,7 @@ export const Main = () => {
                   Hold the button to{" "}
                   <span className="text-blue-500">speak</span>
                 </p>
+                {countdown}
               </>
             )}
           </div>
