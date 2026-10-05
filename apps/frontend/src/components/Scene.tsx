@@ -25,7 +25,7 @@ export const Scene = ({
   pointSize?: number;
 }) => {
   return (
-    <div className="w-full h-100">
+    <div className="w-full h-full">
       <Canvas
         gl={async (props) => {
           const renderer = new WebGPURenderer(
@@ -57,7 +57,7 @@ const useNoiseMaterial = (
   }, [size, pointSize]);
 
   return useMemo(() => {
-    const amplitude = uniform(0.05);
+    const amplitude = uniform(0);
     const frequency = uniform(1);
     const speed = uniform(0.1);
 

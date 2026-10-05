@@ -35,7 +35,7 @@ export const Debug = () => {
 
   const [modelImageUrl, setModelImageUrl] = useState("");
   const [modelLoading, setModelLoading] = useState(false);
-  const [modelResult, setModelResult] = useState("");
+  const [modelResult, setModelResult] = useState("/models/gameboy.ply");
 
   const handleFormulateQuestion = async (conversation: string) => {
     setFormulateQuestionLoading(true);
@@ -222,7 +222,9 @@ export const Debug = () => {
             disabled={modelLoading || !modelImageUrl.trim()}
           />
         </div>
-        {modelResult && <Scene model={modelResult} pointSize={0.002} />}
+        <div className="h-200">
+          {modelResult && <Scene model={modelResult} pointSize={0.002} />}
+        </div>
       </section>
     </div>
   );
