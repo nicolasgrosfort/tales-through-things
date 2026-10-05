@@ -54,13 +54,13 @@ export const Debug = () => {
 
   const handleFormulateQuestion = async (conversation: string) => {
     setFormulateQuestionLoading(true);
-    addLog(`Formulating question from conversation:\n${conversation}`);
+    addLog(`Formulating question...`);
     try {
       const question = await formulateQuestion(conversation, analysis, {
         passed: progression.passed,
         remaining: progression.remaining,
       });
-      addLog(`Formulated question:\n${question}`);
+      addLog(`Question formulated !`);
       const nextConversation: Conversation[] = [
         ...conversationStore.conversation,
         {
@@ -78,10 +78,10 @@ export const Debug = () => {
 
   const handleAnalyzeConversation = async (conversation: string) => {
     setConversationLoading(true);
-    addLog(`Analyzing conversation:\n${conversation}`);
+    addLog(`Analyzing conversation...`);
     try {
       const analysis = await analyzeConversation(conversation);
-      addLog(`Conversation analysis:\n${JSON.stringify(analysis, null, 2)}`);
+      addLog(`Conversation analysed !`);
       setAnalysis(analysis.analysis);
     } catch (e) {
       addLog(`Conversation analysis error: ${String(e)}`);
@@ -92,10 +92,10 @@ export const Debug = () => {
 
   const handleGenerateImage = async (prompt: string) => {
     setImagePromptLoading(true);
-    addLog(`Generating image with prompt: "${prompt}"`);
+    addLog(`Generating image...`);
     try {
       const generatedImage = await generateImage(prompt);
-      addLog(`Image generated:\n${JSON.stringify(generatedImage, null, 2)}`);
+      addLog(`Image generated !`);
       setImagePath(generatedImage.image_url);
       setBgImageUrl(generatedImage.file_path);
     } catch (e) {
@@ -126,10 +126,10 @@ export const Debug = () => {
   const handleGenerateModel = async (url: string) => {
     if (!url.trim()) return;
     setModelLoading(true);
-    addLog(`Generating model from: ${url}`);
+    addLog(`Generating model...`);
     try {
       const generatedModel = await generateModel(url.trim());
-      addLog(`Model generated:\n${JSON.stringify(generatedModel, null, 2)}`);
+      addLog(`Model generated !`);
       setModelResult(generatedModel.ply_url);
     } catch (e) {
       addLog(`Generate model error: ${String(e)}`);
@@ -140,14 +140,12 @@ export const Debug = () => {
 
   const handleGenerateImagePrompt = async () => {
     setImagePromptLoading(true);
-    addLog(
-      `Generating image prompt from conversation:\n${JSON.stringify(conversationStore.conversation)}`,
-    );
+    addLog(`Generating image prompt...`);
     try {
       const { prompt } = await generateImagePrompt(
         JSON.stringify(conversationStore.conversation),
       );
-      addLog(`Image prompt generated:\n${JSON.stringify(prompt, null, 2)}`);
+      addLog(`Image prompt generated !`);
       setImagePrompt(prompt);
     } catch (e) {
       addLog(`Generate image prompt error: ${String(e)}`);
