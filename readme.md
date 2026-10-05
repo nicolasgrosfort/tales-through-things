@@ -5,8 +5,7 @@
 The project contains three main folders:
 
 1. apps: frontend and backend applications
-2. hermes: the agent's personality and behavior
-3. models: the AI models used in the project
+2. models: the AI models used in the project
 
 ## Dependencies
 
@@ -86,15 +85,6 @@ curl -X POST http://localhost:8005/generate \
   -H "Content-Type: application/json" \
   -d '{"imagePath": "/Users/nicolasgrosfort/Developer/courses/tales-through-things/models/birefnet/output/xxx.png"}'
 ```
-
-
-
-### Hermes
-
-The installation starts with `make init`. Here is how to setup: 
-
-1. Select "Full Setup"
-2. Leave the default settings (defined in config.yaml)
 
 ### ML-Sharp
 

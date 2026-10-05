@@ -1,24 +1,7 @@
 include .env
 export
 
-.PHONY: init-frontend dev-frontend init-backend dev-backend init dev dev-agent init-agent chat-agent log-agent
-
-# - - - - - - - - - -
-
-# Hermes
-init-agent: ; cp .env.example .env && docker compose up -d hermes && docker exec -it hermes hermes setup && cd hermes/mcp/memorize && npm install
-sh-agent: ; docker exec -it hermes sh
-chat-agent: ; docker exec -it hermes hermes --tui
-dev-agent: ; docker compose up -d hermes
-log-agent: ; docker compose logs -f hermes
-config-agent: ; docker exec hermes hermes config
-setup-agent: ; docker exec hermes hermes setup
-status-agent: ; docker exec hermes hermes status
-sessions-agent: ; docker exec hermes hermes sessions list
-restart-agent: ; docker compose restart hermes
-update-agent: ; docker compose pull hermes && docker compose up -d hermes
-
-# - - - - - - - - - -
+.PHONY: init-frontend dev-frontend init-backend dev-backend init dev
 
 # Apps
 
@@ -94,5 +77,5 @@ dev-headroom:
 # - - - - - - - - - -
 
 # Common
-init: init-frontend init-backend init-agent init-whisper init-flux init-sharp init-sam3d init-birefnet init-headroom
-dev: ; $(MAKE) -j9 dev-frontend dev-backend dev-agent dev-whisper dev-flux dev-sharp dev-sam3d dev-birefnet dev-headroom
+init: init-frontend init-backend init-whisper init-flux init-sharp init-sam3d init-birefnet init-headroom
+dev: ; $(MAKE) -j9 dev-frontend dev-backend dev-whisper dev-flux dev-sharp dev-sam3d dev-birefnet dev-headroom

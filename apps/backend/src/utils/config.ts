@@ -2,9 +2,6 @@ export { TOPICS } from "../../../shared/config";
 
 export const MAX_TURNS = 10;
 
-export const HERMES_URL = "http://localhost:8642/v1/chat/completions";
-export const HERMES_AUTH = "Bearer tales-through-things";
-
 export const OLLAMA_URL = "http://localhost:11434/v1/chat/completions";
 export const OLLAMA_MODEL = "gemma4:e4b-mlx";
 
