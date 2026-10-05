@@ -15,7 +15,7 @@ import {
   SYSTEMONE_QUESTIONS,
   SYSTEMONE_URL,
 } from "./config";
-import { readPromptFile } from "./helpers";
+import { extractQuestion, readPromptFile } from "./helpers";
 
 export async function analyseConversation(
   conversation: string,
@@ -64,6 +64,7 @@ export async function generateImagePrompt(
         },
       ],
       stream: false,
+      think: false,
     }),
   });
 
@@ -72,7 +73,7 @@ export async function generateImagePrompt(
   }
 
   const data = await res.json();
-  const prompt = data.choices?.[0]?.message?.content;
+  const prompt = data.message?.content;
 
   if (typeof prompt !== "string" || !prompt.trim()) {
     throw new Error("Invalid image prompt received from the API");
@@ -93,7 +94,7 @@ export async function formulateQuestion(
     },
     {
       role: "user",
-      content: `Conversation :\n${conversation}\n\Analyse : ${analysis}\n\Progression : ${progression}`,
+      content: `Conversation :\n${conversation}\nAnalyse : ${JSON.stringify(analysis)}\nProgression : ${JSON.stringify(progression)}`,
     },
   ];
 
@@ -101,14 +102,22 @@ export async function formulateQuestion(
     const res = await fetch(OLLAMA_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: OLLAMA_MODEL, messages, stream: false }),
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        messages,
+        stream: false,
+        think: false,
+      }),
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const content = (await res.json()).choices?.[0]?.message?.content;
-    if (typeof content === "string" && content.trim())
-      return { success: true, question: content.trim() };
+    const content = (await res.json()).message?.content;
+
+    if (typeof content === "string") {
+      const question = extractQuestion(content);
+      if (question) return { success: true, question };
+    }
   } catch (e) {
     console.warn("Formulation de la question échouée, gabarit utilisé :", e);
   }
@@ -160,8 +169,8 @@ export async function generateModel(
       seed: options.seed ?? 42,
       glb: options.glb ?? false,
 
-      stage1Steps: 4,
-      stage2Steps: 4,
+      stage1Steps: 8,
+      stage2Steps: 8,
       memoryProfile: "balanced",
     }),
   });

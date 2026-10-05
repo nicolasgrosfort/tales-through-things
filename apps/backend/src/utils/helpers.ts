@@ -39,3 +39,19 @@ export const readNoul = (a?: DecisionAnswer): number =>
   (typeof a?.probability === "number" ? a.probability : undefined) ??
   a?.probabilities?.["true"] ??
   0;
+
+export function extractQuestion(raw: string): string | null {
+  const text = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
+
+  try {
+    const question = JSON.parse(text)?.question;
+    if (typeof question === "string" && question.trim()) return question.trim();
+  } catch {
+    if (text && !text.startsWith("{")) return text;
+  }
+  return null;
+}

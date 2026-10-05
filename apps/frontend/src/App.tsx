@@ -8,7 +8,7 @@ function App() {
   return (
     <>
       {DEBUG ? (
-        <div className="h-screen w-screen grid grid-cols-[1fr_400px] gap-1 ">
+        <div className="h-screen w-screen grid grid-cols-[1fr_400px] gap-1 font-mono ">
           <Debug />
           <Logs />
         </div>

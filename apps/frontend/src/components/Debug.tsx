@@ -15,7 +15,6 @@ import {
 } from "../utils/stores";
 import { Button } from "./Button";
 import { Scene } from "./Scene";
-import { Textarea } from "./Textarea";
 import { Textfield } from "./Textfield";
 import { Whisper } from "./Whisper";
 
@@ -172,6 +171,13 @@ export const Debug = () => {
         progression.remaining - 1
       } remaining`,
     );
+
+    if (progression.passed + 1 >= 5) {
+      await handleGenerateImagePrompt();
+      await handleGenerateImage(imagePrompt);
+      await handleRemoveBackground(bgImageUrl);
+      await handleGenerateModel(modelImageUrl);
+    }
   };
 
   return (
@@ -299,17 +305,16 @@ export const Debug = () => {
           <h3 className="text-lg font-semibold text-white mb-2">
             Conversation
           </h3>
-          <Textarea
-            value={JSON.stringify(conversationStore.conversation, null, 2)}
-            className="h-fit"
-          />
+          <pre className="text-xs">
+            {JSON.stringify(conversationStore.conversation, null, 2)}
+          </pre>
           <h3 className="text-lg font-semibold text-white mb-2">Analysis</h3>
-          <Textarea value={JSON.stringify(analysis)} />
+          <pre className="text-xs">{JSON.stringify(analysis, null, 2)}</pre>
 
           <h3 className="text-lg font-semibold text-white mb-2">
             Image prompt
           </h3>
-          <Textarea value={JSON.stringify(imagePrompt)} />
+          <pre className="text-xs">{JSON.stringify(imagePrompt, null, 2)}</pre>
         </section>
       </div>
     </>

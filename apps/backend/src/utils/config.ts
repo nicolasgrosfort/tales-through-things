@@ -2,7 +2,7 @@ export { TOPICS } from "../../../shared/config";
 
 export const MAX_TURNS = 10;
 
-export const OLLAMA_URL = "http://localhost:11434/v1/chat/completions";
+export const OLLAMA_URL = "http://localhost:11434/api/chat";
 export const OLLAMA_MODEL = "qwen3.5:4b-mlx";
 
 export const SYSTEMONE_URL = "http://localhost:11434/v1/systemone";
