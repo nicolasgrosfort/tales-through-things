@@ -1,12 +1,15 @@
 import { OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { InstancedBufferAttribute } from "three";
+import { InstancedBufferAttribute, Vector3 } from "three";
 import { PLYLoader } from "three/examples/jsm/Addons.js";
 import {
+  float,
   instancedBufferAttribute,
+  max as maxNode,
+  mx_noise_float,
   mx_noise_vec3,
-  time,
+  smoothstep,
   uniform,
   vec3,
 } from "three/tsl";
@@ -17,12 +20,32 @@ import {
   WebGPURenderer,
 } from "three/webgpu";
 
+export type BurstOptions = {
+  /** Number of bursts, placed randomly on the model at each load */
+  count: number;
+  /** [min, max] burst radius, relative to the model extent */
+  radius: [number, number];
+  /** How far points are pushed away, relative to the model extent */
+  amplitude: number;
+  /** How much noise roughens the burst edges, relative to the radius */
+  edgeRoughness: number;
+};
+
+const DEFAULT_BURSTS: BurstOptions = {
+  count: 20,
+  radius: [0.01, 0.1],
+  amplitude: 0.1,
+  edgeRoughness: 0.2,
+};
+
 export const Scene = ({
   model,
   pointSize = 0.005,
+  bursts,
 }: {
   model?: string;
   pointSize?: number;
+  bursts?: Partial<BurstOptions>;
 }) => {
   if (!model) return false;
 
@@ -38,7 +61,11 @@ export const Scene = ({
         }}
       >
         <Suspense fallback={null}>
-          <Model model={model} pointSize={pointSize} />
+          <Model
+            model={model}
+            pointSize={pointSize}
+            bursts={{ ...DEFAULT_BURSTS, ...bursts }}
+          />
         </Suspense>
         <OrbitControls />
       </Canvas>
@@ -51,7 +78,14 @@ const useNoiseMaterial = (
   positions: InstancedBufferAttribute,
   colors: InstancedBufferAttribute,
   pointSize: number,
+  {
+    count: burstCount,
+    radius,
+    amplitude: amplitudeScale,
+    edgeRoughness,
+  }: BurstOptions,
 ) => {
+  const [radiusMin, radiusMax] = radius;
   const size = useMemo(() => uniform(pointSize), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -59,26 +93,79 @@ const useNoiseMaterial = (
   }, [size, pointSize]);
 
   return useMemo(() => {
-    const amplitude = uniform(0);
-    const frequency = uniform(1);
-    const speed = uniform(0.1);
+    const array = positions.array as Float32Array;
+    const count = positions.count;
+
+    // Model extent, so that burst sizes adapt to the scale of the model
+    const min = new Vector3(Infinity, Infinity, Infinity);
+    const max = new Vector3(-Infinity, -Infinity, -Infinity);
+    for (let i = 0; i < count; i++) {
+      const x = array[i * 3];
+      const y = array[i * 3 + 1];
+      const z = array[i * 3 + 2];
+      min.set(Math.min(min.x, x), Math.min(min.y, y), Math.min(min.z, z));
+      max.set(Math.max(max.x, x), Math.max(max.y, y), Math.max(max.z, z));
+    }
+    const extent = max.sub(min).length();
+
+    const amplitude = uniform(extent * amplitudeScale);
 
     const position = vec3(
       instancedBufferAttribute(positions, "vec3") as unknown as Node<"vec3">,
     );
 
-    // 3D perlin noise sampled at the point position, scrolling over time
-    const noise = mx_noise_vec3(position.mul(frequency).add(time.mul(speed)));
+    // Random noise offset so the ragged edges differ at each load
+    const seed = new Vector3(
+      Math.random() * 100,
+      Math.random() * 100,
+      Math.random() * 100,
+    );
+    const edgeNoise = mx_noise_float(position.mul(3 / extent).add(vec3(seed)));
+
+    // Each burst is centered on a random point of the cloud, with a random radius
+    let mask: Node<"float"> = float(0);
+    for (let i = 0; i < burstCount; i++) {
+      const p = Math.floor(Math.random() * count) * 3;
+      const center = vec3(array[p], array[p + 1], array[p + 2]);
+      const radius =
+        extent * (radiusMin + Math.random() * (radiusMax - radiusMin));
+      const distance = position
+        .sub(center)
+        .length()
+        .add(edgeNoise.mul(radius * edgeRoughness));
+      const burst = smoothstep(float(radius), float(radius * 0.4), distance);
+      mask = maxNode(mask, burst);
+    }
+
+    // High-frequency noise gives each point its own random offset direction
+    const jitter = mx_noise_vec3(position.mul(97.13)).mul(2);
 
     const material = new PointsNodeMaterial({ sizeAttenuation: true });
     material.sizeNode = size;
     material.colorNode = instancedBufferAttribute(colors, "vec3");
-    material.positionNode = position.add(noise.mul(amplitude));
+    material.positionNode = position.add(jitter.mul(amplitude).mul(mask));
     return material;
-  }, [positions, colors, size]);
+  }, [
+    positions,
+    colors,
+    size,
+    burstCount,
+    radiusMin,
+    radiusMax,
+    amplitudeScale,
+    edgeRoughness,
+  ]);
 };
 
-const Model = ({ model, pointSize }: { model: string; pointSize: number }) => {
+const Model = ({
+  model,
+  pointSize,
+  bursts,
+}: {
+  model: string;
+  pointSize: number;
+  bursts: BurstOptions;
+}) => {
   const geometry = useLoader(PLYLoader, model, (loader) => {
     loader.setCustomPropertyNameMapping({
       colorDc: ["f_dc_0", "f_dc_1", "f_dc_2"],
@@ -106,7 +193,7 @@ const Model = ({ model, pointSize }: { model: string; pointSize: number }) => {
     };
   }, [geometry]);
 
-  const material = useNoiseMaterial(positions, colors, pointSize);
+  const material = useNoiseMaterial(positions, colors, pointSize, bursts);
   const sprite = useRef<Sprite>(null);
 
   useFrame((_, delta) => {

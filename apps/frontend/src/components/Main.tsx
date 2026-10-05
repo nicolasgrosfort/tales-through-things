@@ -59,12 +59,12 @@ export const Main = () => {
 
   return (
     <main>
-      <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
+      {/* <p className="text-sm font-mono">Recording: {isRecording.toString()}</p>
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
-      </p>
-      <div className="bg-red-300">
-        <Scene />
+      </p> */}
+      <div className="h-screen w-screen bg-black">
+        <Scene model="/models/gameboy.ply" pointSize={0.002} />
       </div>
     </main>
   );
