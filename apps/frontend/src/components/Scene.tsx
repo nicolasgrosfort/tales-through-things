@@ -21,9 +21,11 @@ export const Scene = ({
   model,
   pointSize = 0.005,
 }: {
-  model: string;
+  model?: string;
   pointSize?: number;
 }) => {
+  if (!model) return false;
+
   return (
     <div className="w-full h-full">
       <Canvas

@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { RESET_DELAY } from "../utils/config";
 import { useLogStore } from "../utils/stores";
+import { Scene } from "./Scene";
 
 export const Main = () => {
   const log = useLogStore();
@@ -62,6 +63,9 @@ export const Main = () => {
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
       </p>
+      <div className="bg-red-300">
+        <Scene />
+      </div>
     </main>
   );
 };
