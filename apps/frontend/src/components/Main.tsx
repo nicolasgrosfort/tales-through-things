@@ -74,7 +74,7 @@ export const Main = () => {
 
   const isGeneratingModel =
     passed >= PROGRESSION.MAX_TURNS && !modelUrl && isBusy;
-  const computedGradient =isRecording ? 100 : 0;
+  const computedGradient = isRecording ? 100 : 0;
   const computedProgress = (passed / PROGRESSION.MAX_TURNS) * 100;
 
   return (

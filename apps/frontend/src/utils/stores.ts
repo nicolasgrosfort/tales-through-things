@@ -96,7 +96,7 @@ type ResultState = {
 export const useResultStore = create<ResultState>()((set) => ({
   analysis: null,
   imageUrl: "",
-  modelUrl: "",
+  modelUrl: "/models/gameboy.ply",
   haiku: "",
   setAnalysis: (analysis) => set({ analysis }),
   setImageUrl: (imageUrl) => set({ imageUrl }),
