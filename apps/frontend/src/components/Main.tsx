@@ -52,7 +52,7 @@ export const Main = () => {
   };
 
   const handleReset = useCallback(() => {
-    log.addLog("Reset experience");
+    log.add("Reset experience");
     resetInactivityTimer();
   }, []);
 

@@ -1,19 +1,19 @@
 import { useEffect, useRef } from "react";
 import { useAudioRecorder } from "../hooks/useAudioRecorder";
 
-export const Whisper = ({
-  onTranscribeEnd,
+export const PushToTalk = ({
+  onSubmit,
   onRecordStart,
   onRecordEnd,
 }: {
-  onTranscribeEnd?: (text: string) => void;
-  onRecordEnd?: () => void;
+  onSubmit?: (audio: Blob) => void;
   onRecordStart?: () => void;
+  onRecordEnd?: () => void;
 }) => {
   const { isRecording, isReady, audioBlob, startRecording, stopRecording } =
     useAudioRecorder(240);
 
-  const onTranscribeEndRef = useRef(onTranscribeEnd);
+  const onSubmitRef = useRef(onSubmit);
   const lastAudioBlobRef = useRef<Blob | null>(null);
 
   useEffect(() => {
@@ -47,8 +47,8 @@ export const Whisper = ({
   }, [isReady, isRecording]);
 
   useEffect(() => {
-    onTranscribeEndRef.current = onTranscribeEnd;
-  }, [onTranscribeEnd]);
+    onSubmitRef.current = onSubmit;
+  }, [onSubmit]);
 
   useEffect(() => {
     if (!audioBlob) return;
@@ -57,21 +57,8 @@ export const Whisper = ({
     if (lastAudioBlobRef.current === audioBlob) return;
     lastAudioBlobRef.current = audioBlob;
 
-    const form = new FormData();
-    form.append("file", audioBlob, "audio.mp4");
-
-    fetch("http://localhost:8001/transcribe", {
-      method: "POST",
-      body: form,
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        console.info("Transcribed text:", data.text);
-        onTranscribeEndRef.current?.(data.text);
-      });
+    onSubmitRef.current?.(audioBlob);
   }, [audioBlob]);
 
-  if (!isReady) return null;
-
-  return <></>;
+  return null;
 };

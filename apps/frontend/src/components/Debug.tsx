@@ -7,6 +7,7 @@ import {
   generateImagePrompt,
   generateModel,
   removeBackground,
+  transcribeAudio,
 } from "../utils/controller";
 import {
   useConversationStore,
@@ -14,9 +15,9 @@ import {
   useProgressionStore,
 } from "../utils/stores";
 import { Button } from "./Button";
+import { PushToTalk } from "./PushToTalk";
 import { Scene } from "./Scene";
 import { Textfield } from "./Textfield";
-import { Whisper } from "./Whisper";
 
 const getLastAssistantQuestion = (conversation: Conversation[]) => {
   const lastAssistantMessage = [...conversation]
@@ -26,7 +27,7 @@ const getLastAssistantQuestion = (conversation: Conversation[]) => {
 };
 
 export const Debug = () => {
-  const { addLog } = useLogStore();
+  const log = useLogStore();
   const progression = useProgressionStore();
   const conversationStore = useConversationStore();
 
@@ -49,15 +50,31 @@ export const Debug = () => {
   const [modelLoading, setModelLoading] = useState(false);
   const [modelResult, setModelResult] = useState("");
 
+  const [transcribeLoading, setTranscribeLoading] = useState(false);
+
+  const handleTranscribe = async (audio: Blob) => {
+    setTranscribeLoading(true);
+    log.add(`Transcribing audio...`);
+    try {
+      const text = await transcribeAudio(audio);
+      log.add(`Audio transcribed !`);
+      await handleConversation(text);
+    } catch (e) {
+      log.add(`Transcription error: ${String(e)}`);
+    } finally {
+      setTranscribeLoading(false);
+    }
+  };
+
   const handleFormulateQuestion = async (conversation: string) => {
     setFormulateQuestionLoading(true);
-    addLog(`Formulating question...`);
+    log.add(`Formulating question...`);
     try {
       const question = await formulateQuestion(conversation, analysis, {
         passed: progression.passed,
         remaining: progression.remaining,
       });
-      addLog(`Question formulated !`);
+      log.add(`Question formulated !`);
       const nextConversation: Conversation[] = [
         ...conversationStore.conversation,
         {
@@ -67,7 +84,7 @@ export const Debug = () => {
       ];
       conversationStore.setConversation(nextConversation);
     } catch (e) {
-      addLog(`Formulate question error: ${String(e)}`);
+      log.add(`Formulate question error: ${String(e)}`);
     } finally {
       setFormulateQuestionLoading(false);
     }
@@ -75,13 +92,13 @@ export const Debug = () => {
 
   const handleAnalyzeConversation = async (conversation: string) => {
     setConversationLoading(true);
-    addLog(`Analyzing conversation...`);
+    log.add(`Analyzing conversation...`);
     try {
       const analysis = await analyzeConversation(conversation);
-      addLog(`Conversation analysed !`);
+      log.add(`Conversation analysed !`);
       setAnalysis(analysis.analysis);
     } catch (e) {
-      addLog(`Conversation analysis error: ${String(e)}`);
+      log.add(`Conversation analysis error: ${String(e)}`);
     } finally {
       setConversationLoading(false);
     }
@@ -89,14 +106,14 @@ export const Debug = () => {
 
   const handleGenerateImage = async (prompt: string) => {
     setImagePromptLoading(true);
-    addLog(`Generating image...`);
+    log.add(`Generating image...`);
     try {
       const generatedImage = await generateImage(prompt);
-      addLog(`Image generated !`);
+      log.add(`Image generated !`);
       setImagePath(generatedImage.image_url);
       setBgImageUrl(generatedImage.file_path);
     } catch (e) {
-      addLog(`Image generation error: ${String(e)}`);
+      log.add(`Image generation error: ${String(e)}`);
     } finally {
       setImagePromptLoading(false);
     }
@@ -105,16 +122,16 @@ export const Debug = () => {
   const handleRemoveBackground = async (url: string) => {
     if (!url.trim()) return;
     setBgLoading(true);
-    addLog(`Removing background: ${url}`);
+    log.add(`Removing background: ${url}`);
     try {
       const imageWithoutBackground = await removeBackground(url.trim());
-      addLog(
+      log.add(
         `Background removed:\n${JSON.stringify(imageWithoutBackground, null, 2)}`,
       );
       setBgResult(imageWithoutBackground.image_url);
       setModelImageUrl(imageWithoutBackground.file_path);
     } catch (e) {
-      addLog(`Remove background error: ${String(e)}`);
+      log.add(`Remove background error: ${String(e)}`);
     } finally {
       setBgLoading(false);
     }
@@ -123,13 +140,13 @@ export const Debug = () => {
   const handleGenerateModel = async (url: string) => {
     if (!url.trim()) return;
     setModelLoading(true);
-    addLog(`Generating model...`);
+    log.add(`Generating model...`);
     try {
       const generatedModel = await generateModel(url.trim());
-      addLog(`Model generated !`);
+      log.add(`Model generated !`);
       setModelResult(generatedModel.ply_url);
     } catch (e) {
-      addLog(`Generate model error: ${String(e)}`);
+      log.add(`Generate model error: ${String(e)}`);
     } finally {
       setModelLoading(false);
     }
@@ -137,15 +154,15 @@ export const Debug = () => {
 
   const handleGenerateImagePrompt = async () => {
     setImagePromptLoading(true);
-    addLog(`Generating image prompt...`);
+    log.add(`Generating image prompt...`);
     try {
       const { prompt } = await generateImagePrompt(
         JSON.stringify(conversationStore.conversation),
       );
-      addLog(`Image prompt generated !`);
+      log.add(`Image prompt generated !`);
       setImagePrompt(prompt);
     } catch (e) {
-      addLog(`Generate image prompt error: ${String(e)}`);
+      log.add(`Generate image prompt error: ${String(e)}`);
     } finally {
       setImagePromptLoading(false);
     }
@@ -166,7 +183,7 @@ export const Debug = () => {
     await handleFormulateQuestion(JSON.stringify(nextConversation));
 
     progression.increase();
-    addLog(
+    log.add(
       `Progression updated: ${progression.passed + 1} passed, ${
         progression.remaining - 1
       } remaining`,
@@ -182,9 +199,9 @@ export const Debug = () => {
 
   return (
     <>
-      <Whisper
-        onTranscribeEnd={(transcription) => {
-          handleConversation(transcription);
+      <PushToTalk
+        onSubmit={(audio) => {
+          void handleTranscribe(audio);
         }}
       />
 

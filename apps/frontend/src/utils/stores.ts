@@ -6,14 +6,14 @@ import type { Log } from "./types";
 // **** LOGS ****
 type LogState = {
   logs: Log[];
-  addLog: (log: Log) => void;
-  clearLogs: () => void;
+  add: (log: Log) => void;
+  clear: () => void;
 };
 
 export const useLogStore = create<LogState>()((set) => ({
   logs: [],
-  addLog: (log) => set((state) => ({ logs: [...state.logs, log] })),
-  clearLogs: () => set({ logs: [] }),
+  add: (log) => set((state) => ({ logs: [...state.logs, log] })),
+  clear: () => set({ logs: [] }),
 }));
 
 // **** CONVERSATION ****
@@ -28,8 +28,7 @@ export const useConversationStore = create<ConversationState>()((set) => ({
   conversation: [
     {
       role: "assistant",
-      content:
-        "Bienvenue ! Peux-tu me raconter un moment dont tu te souviens encore aujourd'hui ?",
+      content: "What memory would you like us to record today?",
     },
   ],
   setConversation: (conversation) => set({ conversation }),
@@ -42,15 +41,21 @@ export const useConversationStore = create<ConversationState>()((set) => ({
 
 //** PIPELINE **//
 type PipelineState = {
-  status: "idle" | "flux" | "sam3d" | "birefnet";
-  run: () => void;
+  status:
+    | "idle"
+    | "recording"
+    | "transcribing"
+    | "analyzing"
+    | "formulating"
+    | "imaginating"
+    | "masking"
+    | "generating";
+  setStatus: (status: PipelineState["status"]) => void;
 };
 
 export const usePipelineStore = create<PipelineState>()((set) => ({
   status: "idle",
-  run: async () => {
-    set({ status: "flux" });
-  },
+  setStatus: (status) => set({ status }),
 }));
 
 //** PROGRESSION **//

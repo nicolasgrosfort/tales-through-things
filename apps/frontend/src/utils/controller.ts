@@ -132,3 +132,20 @@ export const generateModel = async (
 
   return await res.json();
 };
+
+export const transcribeAudio = async (audio: Blob): Promise<string> => {
+  const form = new FormData();
+  form.append("file", audio, "audio.mp4");
+
+  const res = await fetch("http://localhost:8001/transcribe", {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) {
+    throw new Error(`Transcription failed (${res.status})`);
+  }
+
+  const data = await res.json();
+  return data.text;
+};
