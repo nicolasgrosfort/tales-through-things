@@ -31,6 +31,7 @@ export const Main = () => {
   const status = usePipelineStore((s) => s.status);
   const setStatus = usePipelineStore((s) => s.setStatus);
   const passed = useProgressionStore((s) => s.passed);
+  const increaseProgression = useProgressionStore((s) => s.increase);
   const conversation = useConversationStore((s) => s.conversation);
   const modelUrl = useResultStore((s) => s.modelUrl);
   const haiku = useResultStore((s) => s.haiku);
@@ -42,10 +43,12 @@ export const Main = () => {
   // every status or conversation change, and never fires mid-pipeline.
   // The countdown only runs while it is the user's turn (or the experience is
   // over), and is displayed to the user.
+  // Nothing to reset at the very start of the experience (empty conversation).
+  const hasStarted = conversation.length > 0 || !!modelUrl;
   const [remaining, setRemaining] = useState(RESET_DELAY);
   useEffect(() => {
     setRemaining(RESET_DELAY);
-    if (status !== "idle") return;
+    if (status !== "idle" || !hasStarted) return;
     const deadline = Date.now() + RESET_DELAY * 1000;
     const interval = window.setInterval(() => {
       const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
@@ -56,14 +59,14 @@ export const Main = () => {
       }
     }, 250);
     return () => clearInterval(interval);
-  }, [status, conversation]);
+  }, [status, conversation, hasStarted]);
 
   const lastQuestion = [...conversation]
     .reverse()
     .find((msg) => msg.role === "assistant")?.content;
 
   const showCountdown =
-    !isBusy && remaining <= RESET_DELAY - RESET_COUNTDOWN_AFTER;
+    hasStarted && !isBusy && remaining <= RESET_DELAY - RESET_COUNTDOWN_AFTER;
   const countdown = showCountdown && (
     <p className="text-xs text-white/40 tabular-nums">
       Resetting in {remaining}s
@@ -78,7 +81,10 @@ export const Main = () => {
       <PushToTalk
         disabled={(isBusy && !isRecording) || !!modelUrl}
         onRecordStart={() => setStatus("recording")}
-        onRecordEnd={() => setStatus("transcribing")}
+        onRecordEnd={() => {
+          increaseProgression();
+          setStatus("transcribing");
+        }}
         onSubmit={(audio) => {
           void runTurn(audio);
         }}

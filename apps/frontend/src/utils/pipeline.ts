@@ -98,7 +98,7 @@ export const runTurn = async (audio: Blob) => {
     if (isStale()) return;
     useResultStore.getState().setAnalysis(analysis);
 
-    useProgressionStore.getState().increase();
+    // The progression is increased when the user stops speaking (record end)
     const { passed, remaining } = useProgressionStore.getState();
 
     if (passed >= PROGRESSION.MAX_TURNS) {

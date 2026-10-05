@@ -10,8 +10,8 @@ export const ScrambleText = ({ text, className }: ScrambleTextProps) => {
     text,
     speed: 0.6,
     tick: 1,
-    step: 2,
-    scramble: 1,
+    step: 1,
+    scramble: 0,
     overdrive: false,
     overflow: false,
   });
