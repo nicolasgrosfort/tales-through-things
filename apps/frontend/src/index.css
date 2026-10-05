@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* The inner edge of the ring stays put (r - stroke-width / 2 = 50): only the outer edge grows */
+@keyframes ring-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    r: 53.5px;
+    stroke-width: 7px;
+  }
+  50% {
+    opacity: 0.5;
+    r: 55px;
+    stroke-width: 10px;
+  }
+}

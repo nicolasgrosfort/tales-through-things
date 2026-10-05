@@ -1,5 +1,5 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { InstancedBufferAttribute, Vector3 } from "three";
 import { PLYLoader } from "three/examples/jsm/Addons.js";
@@ -38,6 +38,18 @@ const DEFAULT_BURSTS: BurstOptions = {
   edgeRoughness: 0.2,
 };
 
+const MODEL_POSITION: [number, number, number] = [0, 0, 4];
+const CAMERA_DISTANCE = 1;
+const APPEAR_DURATION = 3; // seconds
+const REVEAL_SOFTNESS = 0.15;
+// Isometric view: 45° azimuth, elevation of atan(1/√2) ≈ 35.264°
+const ISO_AZIMUTH = Math.PI / 4;
+const ISO_ELEVATION = Math.atan(1 / Math.SQRT2);
+
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
 export const Scene = ({
   model,
   pointSize = 0.005,
@@ -62,15 +74,41 @@ export const Scene = ({
       >
         <Suspense fallback={null}>
           <Model
+            key={model}
             model={model}
             pointSize={pointSize}
             bursts={{ ...DEFAULT_BURSTS, ...bursts }}
           />
+          <CameraRig key={`rig-${model}`} />
         </Suspense>
-        <OrbitControls />
+        <OrbitControls makeDefault target={MODEL_POSITION} />
       </Canvas>
     </div>
   );
+};
+
+// Swings the camera from front view to an isometric azimuth while the model appears
+const CameraRig = () => {
+  const camera = useThree((state) => state.camera);
+  const elapsed = useRef(0);
+
+  useFrame((_, delta) => {
+    if (elapsed.current >= APPEAR_DURATION) return;
+    elapsed.current += delta;
+    const t = easeOutCubic(Math.min(1, elapsed.current / APPEAR_DURATION));
+    const azimuth = ISO_AZIMUTH * t;
+    const elevation = ISO_ELEVATION * t;
+    camera.position.set(
+      MODEL_POSITION[0] +
+        CAMERA_DISTANCE * Math.cos(elevation) * Math.sin(azimuth),
+      MODEL_POSITION[1] + CAMERA_DISTANCE * Math.sin(elevation),
+      MODEL_POSITION[2] +
+        CAMERA_DISTANCE * Math.cos(elevation) * Math.cos(azimuth),
+    );
+    camera.lookAt(...MODEL_POSITION);
+  });
+
+  return null;
 };
 
 // WebGPU only renders 1px points, so each point is an instanced sprite quad
@@ -87,12 +125,14 @@ const useNoiseMaterial = (
 ) => {
   const [radiusMin, radiusMax] = radius;
   const size = useMemo(() => uniform(pointSize), []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Appear progress, 0 (nothing visible) to 1 (fully revealed)
+  const reveal = useMemo(() => uniform(0), []);
 
   useEffect(() => {
     size.value = pointSize;
   }, [size, pointSize]);
 
-  return useMemo(() => {
+  const material = useMemo(() => {
     const array = positions.array as Float32Array;
     const count = positions.count;
 
@@ -140,21 +180,37 @@ const useNoiseMaterial = (
     // High-frequency noise gives each point its own random offset direction
     const jitter = mx_noise_vec3(position.mul(97.13)).mul(2);
 
+    // Appear: points pop in sweeping up the model (model space is z-up),
+    // with noise breaking the front, and fly in from a random offset
+    const height = position.z.sub(min.z).div(Math.max(max.z - min.z, 1e-6));
+    const grain = mx_noise_float(position.mul(53.7)).mul(0.5).add(0.5);
+    const threshold = height
+      .mul(0.55)
+      .add(grain.mul(0.3))
+      .clamp(0, 1 - REVEAL_SOFTNESS);
+    const appear = smoothstep(threshold, threshold.add(REVEAL_SOFTNESS), reveal);
+    const flyIn = jitter.mul(extent * 0.05).mul(float(1).sub(appear));
+
     const material = new PointsNodeMaterial({ sizeAttenuation: true });
-    material.sizeNode = size;
+    material.sizeNode = size.mul(appear);
     material.colorNode = instancedBufferAttribute(colors, "vec3");
-    material.positionNode = position.add(jitter.mul(amplitude).mul(mask));
+    material.positionNode = position
+      .add(jitter.mul(amplitude).mul(mask))
+      .add(flyIn);
     return material;
   }, [
     positions,
     colors,
     size,
+    reveal,
     burstCount,
     radiusMin,
     radiusMax,
     amplitudeScale,
     edgeRoughness,
   ]);
+
+  return { material, reveal };
 };
 
 const Model = ({
@@ -193,15 +249,27 @@ const Model = ({
     };
   }, [geometry]);
 
-  const material = useNoiseMaterial(positions, colors, pointSize, bursts);
+  const { material, reveal } = useNoiseMaterial(
+    positions,
+    colors,
+    pointSize,
+    bursts,
+  );
   const sprite = useRef<Sprite>(null);
+  const elapsed = useRef(0);
 
   useFrame((_, delta) => {
     if (sprite.current) sprite.current.rotation.z += delta * 0.2;
+    if (elapsed.current < APPEAR_DURATION) {
+      elapsed.current += delta;
+      reveal.value = easeInOutCubic(
+        Math.min(1, elapsed.current / APPEAR_DURATION),
+      );
+    }
   });
 
   return (
-    <group rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 4]}>
+    <group rotation={[-Math.PI / 2, 0, 0]} position={MODEL_POSITION}>
       <sprite
         ref={sprite}
         count={positions.count}

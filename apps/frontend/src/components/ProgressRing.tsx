@@ -10,10 +10,12 @@ const THICKNESS = 7;
  */
 export const ProgressRing = ({
   percent = 0,
+  pulsing = false,
   className = "",
   children,
 }: {
   percent?: number;
+  pulsing?: boolean;
   className?: string;
   children?: ReactNode;
 }) => {
@@ -31,7 +33,9 @@ export const ProgressRing = ({
           cy={50}
           r={50 + THICKNESS / 2}
           fill="none"
-          className="transition-[stroke-dasharray] duration-1000 ease-in-out"
+          className={`transition-[stroke-dasharray] duration-1000 ease-in-out ${
+            pulsing ? "animate-[ring-pulse_2.4s_ease-in-out_infinite]" : ""
+          }`}
           stroke={RING_COLOR}
           strokeWidth={THICKNESS}
           pathLength={100}

@@ -12,7 +12,6 @@ import { Gradient } from "./Gradient";
 import { ProgressRing } from "./ProgressRing";
 import { PushToTalk } from "./PushToTalk";
 import { Scene } from "./Scene";
-import { ScrambleText } from "./ScrambleText";
 
 const STATUS_LABELS: Partial<
   Record<ReturnType<typeof usePipelineStore.getState>["status"], string>
@@ -73,6 +72,8 @@ export const Main = () => {
     </p>
   );
 
+  const isGeneratingModel =
+    passed >= PROGRESSION.MAX_TURNS && !modelUrl && isBusy;
   const computedGradient =isRecording ? 100 : 0;
   const computedProgress = (passed / PROGRESSION.MAX_TURNS) * 100;
 
@@ -95,6 +96,7 @@ export const Main = () => {
       >
         <ProgressRing
           percent={computedProgress}
+          pulsing={isGeneratingModel}
           className="aspect-square w-118 max-h-118"
         >
           <div className="size-full p-10 rounded-full overflow-hidden bg-black text-white text-center flex justify-center flex-col h-full gap-4">
@@ -111,16 +113,12 @@ export const Main = () => {
                 {countdown}
               </>
             ) : isBusy ? (
-              <ScrambleText
-                text={STATUS_LABELS[status] ?? ""}
-                className="text-4xl text-pretty"
-              />
+              <p className="text-4xl text-pretty">
+                {STATUS_LABELS[status] ?? ""}
+              </p>
             ) : (
               <>
-                <ScrambleText
-                  text={lastQuestion ?? ""}
-                  className="text-4xl text-pretty"
-                />
+                <p className="text-4xl text-pretty">{lastQuestion}</p>
                 <p className="text-xl">
                   Hold the button to{" "}
                   <span className="text-blue-500">speak</span>
