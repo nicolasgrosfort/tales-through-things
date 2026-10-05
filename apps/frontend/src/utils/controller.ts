@@ -3,15 +3,16 @@ import type {
   AnalyzeConversationResponse,
   GenerateModelResponse,
   ImageGenerationResponse,
+  Progression,
   RemoveBackgroundResponse,
 } from "../../../shared/types";
 import { API_URL } from "./config";
 import { useConversationStore } from "./stores";
 
 export async function handleConversation(userAnswer?: string) {
-  const { addMessage, conversation } = useConversationStore.getState();
+  const { addConversation, conversation } = useConversationStore.getState();
 
-  if (userAnswer) addMessage({ role: "user", content: userAnswer });
+  if (userAnswer) addConversation({ role: "user", content: userAnswer });
 
   const res = await fetch(`${API_URL}/conversation`, {
     method: "POST",
@@ -31,11 +32,12 @@ export async function handleConversation(userAnswer?: string) {
 export async function formulateQuestion(
   conversation: string,
   analysis: Analysis | null,
+  progression: Progression,
 ): Promise<string> {
   const res = await fetch(`${API_URL}/ask-question`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ conversation, analysis }),
+    body: JSON.stringify({ conversation, analysis, progression }),
   });
 
   if (!res.ok) {

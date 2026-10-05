@@ -7,13 +7,14 @@ import {
   generateModel,
   removeBackground,
 } from "../utils/controller";
-import { useLogStore } from "../utils/stores";
+import { useLogStore, useProgressionStore } from "../utils/stores";
 import { Button } from "./Button";
 import { Scene } from "./Scene";
 import { Textfield } from "./Textfield";
 
 export const Debug = () => {
   const { addLog } = useLogStore();
+  const { passed, remaining } = useProgressionStore();
 
   const [conversation, setConversation] = useState(
     "LLM: Think of a childhood memory that comes easily to mind. Who was with you?\nUser: My cousin Maxime. We often spent the holidays together.\nLLM: What did he look like back then? Do you remember his hair, his height, or what he wore?\nUser: He had brown hair that was always messy, and he was taller than me. He often wore an old red sweater.\nLLM: Did he always carry an object with him—something that reminds you of him?\nUser: Yes, he had a slightly worn blue backpack. He kept marbles and a flashlight in it.\nLLM: Do you remember how he carried it or what he did with it?\nUser: He wore it over one shoulder and opened it whenever he had a new idea for a game.\nLLM: What was he like?\nUser: He was full of energy and always making jokes. He was constantly coming up with new games.\nLLM: And what were you like around him?\nUser: I was more reserved. I followed him on his adventures, but usually let him make the decisions.\nLLM: What detail comes back to you most clearly when you think of him?\nUser: His big smile, his old red sweater, and his blue backpack full of treasures.",
@@ -41,7 +42,10 @@ export const Debug = () => {
     setFormulateQuestionLoading(true);
     addLog(`Formulating question from conversation:\n${conversation}`);
     try {
-      const question = await formulateQuestion(conversation, analysis);
+      const question = await formulateQuestion(conversation, analysis, {
+        passed,
+        remaining,
+      });
       addLog(`Formulated question:\n${question}`);
     } catch (e) {
       addLog(`Formulate question error: ${String(e)}`);

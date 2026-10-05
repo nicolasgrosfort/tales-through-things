@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { Analysis } from "../../shared/types";
+import { Analysis, Progression } from "../../shared/types";
 import {
   analyseConversation,
   formulateQuestion,
@@ -17,12 +17,13 @@ app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 app.post("/ask-question", async (req, res) => {
-  const { conversation, analysis } = req.body as {
+  const { conversation, analysis, progression } = req.body as {
     conversation: string;
     analysis: Analysis;
+    progression: Progression;
   };
 
-  const question = await formulateQuestion(conversation, analysis);
+  const question = await formulateQuestion(conversation, analysis, progression);
   res.json(question);
 });
 
