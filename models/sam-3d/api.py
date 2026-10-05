@@ -16,9 +16,9 @@ from mlx_spatial.sam3d_inference import Sam3dInferencePipeline
 
 BASE_DIR = Path(__file__).parent.resolve()
 
-# mlx-spatial only writes under ./output (relative to the cwd)
+# mlx-spatial only writes under ./outputs (relative to the cwd)
 os.chdir(BASE_DIR)
-OUTPUT_DIR = BASE_DIR / "output"
+OUTPUT_DIR = BASE_DIR / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

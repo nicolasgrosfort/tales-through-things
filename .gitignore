@@ -30,3 +30,4 @@ dist-ssr
 
 # Models output
 models/*/output
+models/*/outputs
