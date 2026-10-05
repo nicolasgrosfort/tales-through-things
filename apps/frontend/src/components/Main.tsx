@@ -2,9 +2,16 @@ import { useCallback, useRef, useState } from "react";
 import { RESET_DELAY } from "../utils/config";
 import { useLogStore } from "../utils/stores";
 import { Gradient } from "./Gradient";
+import { ProgressRing } from "./ProgressRing";
 import { Scene } from "./Scene";
 
-export const Main = ({ gradient = 50 }: { gradient?: number }) => {
+export const Main = ({
+  gradient = 50,
+  progress = 0,
+}: {
+  gradient?: number;
+  progress?: number;
+}) => {
   const log = useLogStore();
 
   const [countdown, setCountdown] = useState(RESET_DELAY);
@@ -68,9 +75,14 @@ export const Main = ({ gradient = 50 }: { gradient?: number }) => {
         percent={gradient}
         className="h-screen w-screen grid place-items-center"
       >
-        <div className="aspect-square w-118 max-h-118 p-10 rounded-full overflow-hidden bg-black">
-          <Scene model="/models/gameboy.ply" pointSize={0.002} />
-        </div>
+        <ProgressRing
+          percent={progress}
+          className="aspect-square w-118 max-h-118"
+        >
+          <div className="size-full p-10 rounded-full overflow-hidden bg-black">
+            <Scene model="/models/gameboy.ply" pointSize={0.002} />
+          </div>
+        </ProgressRing>
       </Gradient>
     </main>
   );
