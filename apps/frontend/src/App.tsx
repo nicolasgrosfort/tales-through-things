@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { Debug } from "./components/Debug";
 import { Logs } from "./components/Logs";
-import { Whisper } from "./components/Whisper";
 import { API_URL, RESET_DELAY } from "./utils/config";
 import { handleConversation } from "./utils/controller";
 import {
@@ -101,18 +100,6 @@ function App() {
     setModelQuestion("");
   }, []);
 
-  const handleRecordStart = useCallback(() => {
-    resetInactivityTimer();
-    setIsLoading(true);
-    setIsRecording(true);
-    addLog("Recording started");
-  }, []);
-
-  const handleRecordEnd = useCallback(() => {
-    setIsRecording(false);
-    addLog("Recording ended");
-  }, []);
-
   const handleMessage = useCallback((message: string) => {
     setIsLoading(true);
     setUserAnswer("");
@@ -132,11 +119,6 @@ function App() {
   return (
     <>
       <main className="p-4">
-        <Whisper
-          onRecordStart={handleRecordStart}
-          onRecordEnd={handleRecordEnd}
-          onTranscribeEnd={handleMessage}
-        />
         <h1 className="text-2xl font-bold mb-4">Tales Through Things</h1>
         <input
           type="text"
@@ -198,8 +180,10 @@ function App() {
           Reset automatique dans {countdown}s
         </p>
       </main>
-      <Debug />
-      <Logs />
+      <div className="grid grid-cols-[1fr_400px] gap-4 ">
+        <Debug />
+        <Logs />
+      </div>
     </>
   );
 }

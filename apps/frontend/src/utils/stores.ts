@@ -19,6 +19,7 @@ export const useLogStore = create<LogState>()((set) => ({
 // **** CONVERSATION ****
 type ConversationState = {
   conversation: Conversation[];
+  setConversation: (conversation: Conversation[]) => void;
   addConversation: (conversation: Conversation) => void;
   reset: () => void;
 };
@@ -31,6 +32,7 @@ export const useConversationStore = create<ConversationState>()((set) => ({
         "Bienvenue ! Peux-tu me raconter un moment dont tu te souviens encore aujourd'hui ?",
     },
   ],
+  setConversation: (conversation) => set({ conversation }),
   addConversation: (conversation) =>
     set((state) => ({
       conversation: [...state.conversation, conversation],
@@ -55,14 +57,17 @@ export const usePipelineStore = create<PipelineState>()((set) => ({
 type ProgressionState = {
   passed: number;
   remaining: number;
-  increase: (passed: number, remaining: number) => void;
+  increase: () => void;
   reset: () => void;
 };
 
 export const useProgressionStore = create<ProgressionState>()((set) => ({
   passed: 0,
   remaining: PROGRESSION.MAX_TURNS,
-  increase: (passed, remaining) =>
-    set({ passed: passed + 1, remaining: remaining - 1 }),
+  increase: () =>
+    set({
+      passed: useProgressionStore.getState().passed + 1,
+      remaining: useProgressionStore.getState().remaining - 1,
+    }),
   reset: () => set({ passed: 0, remaining: 0 }),
 }));

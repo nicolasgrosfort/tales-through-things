@@ -47,8 +47,6 @@ export async function formulateQuestion(
 
   const data = await res.json();
 
-  console.log("Formulated question response:", data); // Log the entire response for debugging
-
   return data.question;
 }
 

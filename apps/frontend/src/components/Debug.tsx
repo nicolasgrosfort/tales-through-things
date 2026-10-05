@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Analysis } from "../../../shared/types";
+import type { Analysis, Conversation } from "../../../shared/types";
 import {
   analyzeConversation,
   formulateQuestion,
@@ -8,18 +8,31 @@ import {
   generateModel,
   removeBackground,
 } from "../utils/controller";
-import { useLogStore, useProgressionStore } from "../utils/stores";
+import {
+  useConversationStore,
+  useLogStore,
+  useProgressionStore,
+} from "../utils/stores";
 import { Button } from "./Button";
 import { Scene } from "./Scene";
+import { Textarea } from "./Textarea";
 import { Textfield } from "./Textfield";
+import { Whisper } from "./Whisper";
+
+const getLastAssistantQuestion = (conversation: Conversation[]) => {
+  const lastAssistantMessage = [...conversation]
+    .reverse()
+    .find((msg) => msg.role === "assistant");
+  return lastAssistantMessage ? lastAssistantMessage.content : null;
+};
 
 export const Debug = () => {
   const { addLog } = useLogStore();
-  const { passed, remaining } = useProgressionStore();
+  const progression = useProgressionStore();
+  const conversationStore = useConversationStore();
 
-  const [conversation, setConversation] = useState(
-    "LLM: Think of a childhood memory that comes easily to mind. Who was with you?\nUser: My cousin Maxime. We often spent the holidays together.\nLLM: What did he look like back then? Do you remember his hair, his height, or what he wore?\nUser: He had brown hair that was always messy, and he was taller than me. He often wore an old red sweater.\nLLM: Did he always carry an object with him—something that reminds you of him?\nUser: Yes, he had a slightly worn blue backpack. He kept marbles and a flashlight in it.\nLLM: Do you remember how he carried it or what he did with it?\nUser: He wore it over one shoulder and opened it whenever he had a new idea for a game.\nLLM: What was he like?\nUser: He was full of energy and always making jokes. He was constantly coming up with new games.\nLLM: And what were you like around him?\nUser: I was more reserved. I followed him on his adventures, but usually let him make the decisions.\nLLM: What detail comes back to you most clearly when you think of him?\nUser: His big smile, his old red sweater, and his blue backpack full of treasures.",
-  );
+  const [userResponse, setUserResponse] = useState("");
+
   const [conversationLoading, setConversationLoading] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [formulateQuestionLoading, setFormulateQuestionLoading] =
@@ -44,10 +57,18 @@ export const Debug = () => {
     addLog(`Formulating question from conversation:\n${conversation}`);
     try {
       const question = await formulateQuestion(conversation, analysis, {
-        passed,
-        remaining,
+        passed: progression.passed,
+        remaining: progression.remaining,
       });
       addLog(`Formulated question:\n${question}`);
+      const nextConversation: Conversation[] = [
+        ...conversationStore.conversation,
+        {
+          role: "assistant",
+          content: question,
+        },
+      ];
+      conversationStore.setConversation(nextConversation);
     } catch (e) {
       addLog(`Formulate question error: ${String(e)}`);
     } finally {
@@ -119,9 +140,13 @@ export const Debug = () => {
 
   const handleGenerateImagePrompt = async () => {
     setImagePromptLoading(true);
-    addLog(`Generating image prompt from conversation:\n${conversation}`);
+    addLog(
+      `Generating image prompt from conversation:\n${JSON.stringify(conversationStore.conversation)}`,
+    );
     try {
-      const { prompt } = await generateImagePrompt(conversation);
+      const { prompt } = await generateImagePrompt(
+        JSON.stringify(conversationStore.conversation),
+      );
       addLog(`Image prompt generated:\n${JSON.stringify(prompt, null, 2)}`);
       setImagePrompt(prompt);
     } catch (e) {
@@ -131,120 +156,159 @@ export const Debug = () => {
     }
   };
 
+  const handleConversation = async (conversation: string) => {
+    const nextConversation: Conversation[] = [
+      ...conversationStore.conversation,
+      {
+        role: "user",
+        content: conversation,
+      },
+    ];
+    conversationStore.setConversation(nextConversation);
+    setUserResponse("");
+
+    await handleAnalyzeConversation(JSON.stringify(nextConversation));
+    await handleFormulateQuestion(JSON.stringify(nextConversation));
+
+    progression.increase();
+  };
+
   return (
-    <div className="bg-black p-4">
-      <h2 className="text-xl font-bold text-white mb-4">Debug</h2>
+    <>
+      <Whisper
+        onTranscribeEnd={(transcription) => {
+          handleConversation(transcription);
+        }}
+      />
 
-      <section>
-        <Button
-          label="Generate image prompt"
-          onClick={handleGenerateImagePrompt}
-        />
-      </section>
-
-      <section className="grid grid-rows-[auto_auto] gap-2">
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
+      <div className="bg-black p-4 text-white flex flex-col gap-4">
+        <h2 className="text-xl font-bold text-white">Debug</h2>
+        <p>{getLastAssistantQuestion(conversationStore.conversation)}</p>
+        <section className="grid grid-cols-[1fr_auto] gap-2">
           <Textfield
-            placeholder="Conversation"
-            value={conversation}
-            onChange={setConversation}
-            onSubmit={handleAnalyzeConversation}
+            value={userResponse}
+            onChange={setUserResponse}
+            className="text-black"
+            onSubmit={(value) => {
+              handleConversation(value);
+            }}
           />
           <Button
-            label={
-              conversationLoading ? "Analyzing..." : "Analyze Conversation"
-            }
+            label="Add user response"
             onClick={() => {
-              void handleAnalyzeConversation(conversation);
+              handleConversation(userResponse);
             }}
-            disabled={conversationLoading || !conversation.trim()}
           />
-        </div>
-      </section>
+        </section>
+        <section>
+          <h3 className="text-lg font-semibold text-white mb-2">Actions</h3>
+          <div className="flex gap-2 mb-4">
+            <Button
+              label={
+                formulateQuestionLoading
+                  ? "Generating..."
+                  : "Formulate Question"
+              }
+              onClick={() => {
+                void handleFormulateQuestion(
+                  JSON.stringify(conversationStore.conversation),
+                );
+              }}
+              disabled={
+                formulateQuestionLoading ||
+                !JSON.stringify(conversationStore.conversation).trim()
+              }
+            />
+            <Button
+              label={
+                conversationLoading ? "Analyzing..." : "Analyze Conversation"
+              }
+              onClick={() => {
+                void handleAnalyzeConversation(
+                  JSON.stringify(conversationStore.conversation),
+                );
+              }}
+              disabled={
+                conversationLoading ||
+                !JSON.stringify(conversationStore.conversation).trim()
+              }
+            />
+            <Button
+              label="Generate image prompt"
+              onClick={handleGenerateImagePrompt}
+            />
+            <Button
+              label={imagePromptLoading ? "Generating..." : "Generate Image"}
+              onClick={() => {
+                void handleGenerateImage(imagePrompt);
+              }}
+              disabled={imagePromptLoading || !imagePrompt.trim()}
+            />
+            <Button
+              label={bgLoading ? "Removing..." : "Remove Background"}
+              onClick={() => {
+                void handleRemoveBackground(bgImageUrl);
+              }}
+              disabled={bgLoading || !bgImageUrl.trim()}
+            />
+            <Button
+              label={modelLoading ? "Generating..." : "Generate Model"}
+              onClick={() => {
+                void handleGenerateModel(modelImageUrl);
+              }}
+              disabled={modelLoading || !modelImageUrl.trim()}
+            />
+          </div>
+        </section>
 
-      <section className="grid grid-rows-[auto_auto] gap-2 mt-4">
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
-          <Textfield
-            placeholder="Conversation"
-            value={conversation}
-            onChange={setConversation}
-            onSubmit={handleFormulateQuestion}
+        <section>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            Conversation
+          </h3>
+          <Textarea
+            value={JSON.stringify(conversationStore.conversation, null, 2)}
           />
-          <Button
-            label={
-              formulateQuestionLoading ? "Generating..." : "Formulate Question"
-            }
-            onClick={() => {
-              void handleFormulateQuestion(conversation);
-            }}
-            disabled={formulateQuestionLoading || !conversation.trim()}
-          />
-        </div>
-      </section>
+          <h3 className="text-lg font-semibold text-white mb-2">Analysis</h3>
+          <Textarea value={JSON.stringify(analysis)} />
 
-      <section className="grid grid-rows-[auto_auto] gap-2 mt-4">
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
-          <Textfield
-            placeholder="Image prompt"
-            value={imagePrompt}
-            onChange={setImagePrompt}
-            onSubmit={handleGenerateImage}
-          />
-          <Button
-            label={imagePromptLoading ? "Generating..." : "Generate Image"}
-            onClick={() => {
-              void handleGenerateImage(imagePrompt);
-            }}
-            disabled={imagePromptLoading || !imagePrompt.trim()}
-          />
-        </div>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            Image prompt
+          </h3>
+          <Textarea value={JSON.stringify(imagePrompt)} />
+        </section>
 
-        {imagePath && (
-          <img src={imagePath} width="200" height="200" alt="Generated" />
-        )}
-      </section>
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Image Generation
+            </h3>
+            {imagePath && (
+              <img src={imagePath} width="200" height="200" alt="Generated" />
+            )}
+          </div>
 
-      <section className="grid gap-2 mt-4">
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
-          <Textfield
-            placeholder="Image URL (remove background)"
-            value={bgImageUrl}
-            onChange={setBgImageUrl}
-            onSubmit={handleRemoveBackground}
-          />
-          <Button
-            label={bgLoading ? "Removing..." : "Remove Background"}
-            onClick={() => {
-              void handleRemoveBackground(bgImageUrl);
-            }}
-            disabled={bgLoading || !bgImageUrl.trim()}
-          />
-        </div>
-        {bgResult && (
-          <img src={bgResult} width="200" height="200" alt="No background" />
-        )}
-      </section>
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Background Removal
+            </h3>
+            {bgResult && (
+              <img
+                src={bgResult}
+                width="200"
+                height="200"
+                alt="No background"
+              />
+            )}
+          </div>
 
-      <section className="grid gap-2 mt-4">
-        <div className="grid grid-cols-[1fr_200px] gap-4 items-center">
-          <Textfield
-            placeholder="Image URL (generate model)"
-            value={modelImageUrl}
-            onChange={setModelImageUrl}
-            onSubmit={handleGenerateModel}
-          />
-          <Button
-            label={modelLoading ? "Generating..." : "Generate Model"}
-            onClick={() => {
-              void handleGenerateModel(modelImageUrl);
-            }}
-            disabled={modelLoading || !modelImageUrl.trim()}
-          />
-        </div>
-        <div className="h-200">
-          {modelResult && <Scene model={modelResult} pointSize={0.002} />}
-        </div>
-      </section>
-    </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">Model</h3>
+            <div className="w-50">
+              {modelResult && <Scene model={modelResult} pointSize={0.002} />}
+            </div>
+          </div>
+        </section>
+      </div>
+    </>
   );
 };

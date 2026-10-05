@@ -6,7 +6,7 @@ export const Whisper = ({
   onRecordStart,
   onRecordEnd,
 }: {
-  onTranscribeEnd: (text: string) => void;
+  onTranscribeEnd?: (text: string) => void;
   onRecordEnd?: () => void;
   onRecordStart?: () => void;
 }) => {
@@ -67,7 +67,7 @@ export const Whisper = ({
       .then((r) => r.json())
       .then((data) => {
         console.info("Transcribed text:", data.text);
-        onTranscribeEndRef.current(data.text);
+        onTranscribeEndRef.current?.(data.text);
       });
   }, [audioBlob]);
 

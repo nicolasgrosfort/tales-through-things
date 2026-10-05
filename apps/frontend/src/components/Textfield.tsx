@@ -5,6 +5,7 @@ export const Textfield = ({
   placeholder = "Type your message...",
   disabled = false,
   stopPropagation = true,
+  className = "",
 }: {
   value: string;
   placeholder?: string;
@@ -12,6 +13,7 @@ export const Textfield = ({
   stopPropagation?: boolean;
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
+  className?: string;
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (stopPropagation) {
@@ -32,7 +34,7 @@ export const Textfield = ({
   return (
     <input
       type="text"
-      className="w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300 bg-white"
+      className={`w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300 bg-white ${className}`}
       value={value}
       onChange={handleOnChange}
       onKeyDown={handleKeyDown}
