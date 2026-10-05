@@ -22,7 +22,10 @@ export const Gradient = ({
   };
 
   return (
-    <div className={className} style={style}>
+    <div
+      className={`transition-[background-position] duration-1000 ease-in-out ${className}`}
+      style={style}
+    >
       {children}
     </div>
   );

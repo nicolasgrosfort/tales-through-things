@@ -3,10 +3,13 @@ import { RESET_DELAY } from "../utils/config";
 import { useLogStore } from "../utils/stores";
 import { Gradient } from "./Gradient";
 import { ProgressRing } from "./ProgressRing";
+import { PushToTalk } from "./PushToTalk";
 import { Scene } from "./Scene";
 
+const model = undefined;
+
 export const Main = ({
-  gradient = 50,
+  gradient = 0,
   progress = 0,
 }: {
   gradient?: number;
@@ -71,16 +74,27 @@ export const Main = ({
       <p className="text-sm text-gray-500">
         Reset automatique dans {countdown}s
       </p> */}
+      <PushToTalk
+        onRecordStart={() => setIsRecording(true)}
+        onRecordEnd={() => setIsRecording(false)}
+      />
       <Gradient
-        percent={gradient}
+        percent={isRecording ? 100 : gradient}
         className="h-screen w-screen grid place-items-center"
       >
         <ProgressRing
           percent={progress}
           className="aspect-square w-118 max-h-118"
         >
-          <div className="size-full p-10 rounded-full overflow-hidden bg-black">
-            <Scene model="/models/gameboy.ply" pointSize={0.002} />
+          <div className="size-full p-10 rounded-full overflow-hidden bg-black text-white text-center flex justify-center flex-col h-full gap-4">
+            <p className="text-4xl text-pretty">
+              Do you want to generate a memory ?
+            </p>
+            <p className="text-xl">
+              Hold the button to <span className="text-blue-500">speak</span>
+            </p>
+
+            {model && <Scene model="/models/gameboy.ply" pointSize={0.002} />}
           </div>
         </ProgressRing>
       </Gradient>
