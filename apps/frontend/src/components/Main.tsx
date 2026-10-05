@@ -17,9 +17,9 @@ const STATUS_LABELS: Partial<
   Record<ReturnType<typeof usePipelineStore.getState>["status"], string>
 > = {
   recording: "Listening...",
-  transcribing: "Thinking...",
-  analyzing: "Thinking...",
-  formulating: "Thinking...",
+  transcribing: "Transcribing...",
+  analyzing: "Analyzing...",
+  formulating: "Formulating...",
   composing: "Writing your haiku...",
   imaginating: "Imagining your memory...",
   masking: "Shaping your memory...",
