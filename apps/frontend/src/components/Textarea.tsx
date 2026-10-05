@@ -5,6 +5,7 @@ export const Textarea = ({
   placeholder = "Type your message...",
   disabled = false,
   stopPropagation = true,
+  className = "",
 }: {
   value: string;
   placeholder?: string;
@@ -12,6 +13,7 @@ export const Textarea = ({
   stopPropagation?: boolean;
   onChange?: (value: string) => void;
   onSubmit?: (value: string) => void;
+  className?: string;
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (stopPropagation) {
@@ -31,7 +33,7 @@ export const Textarea = ({
 
   return (
     <textarea
-      className="w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300"
+      className={`w-full p-2 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300 ${className}`}
       value={value}
       onChange={handleOnChange}
       onKeyDown={handleKeyDown}

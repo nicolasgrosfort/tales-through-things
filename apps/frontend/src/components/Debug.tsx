@@ -39,9 +39,7 @@ export const Debug = () => {
     useState(false);
 
   const [imagePromptLoading, setImagePromptLoading] = useState(false);
-  const [imagePrompt, setImagePrompt] = useState(
-    "A playful, one-of-a-kind special edition of a classic handheld Game Boy, presented as a clean catalog object. Give it a bright blue casing with fun, distinctive details while keeping its buttons and screen clearly recognizable. Viewed from a 45-degree elevated angle, with its front, side and top surfaces visible. The entire Game Boy is fully visible, centered with generous margins. Straight-on product documentation, orthographic-looking perspective, sharp focus across the whole object. A single, uniform pastel yellow background, soft diffuse studio lighting and a subtle contact shadow directly beneath it. No extra objects, no patterns, no artistic composition.",
-  );
+  const [imagePrompt, setImagePrompt] = useState("");
   const [imagePath, setImagePath] = useState("");
 
   const [bgImageUrl, setBgImageUrl] = useState("");
@@ -50,7 +48,7 @@ export const Debug = () => {
 
   const [modelImageUrl, setModelImageUrl] = useState("");
   const [modelLoading, setModelLoading] = useState(false);
-  const [modelResult, setModelResult] = useState("/models/gameboy.ply");
+  const [modelResult, setModelResult] = useState("");
 
   const handleFormulateQuestion = async (conversation: string) => {
     setFormulateQuestionLoading(true);
@@ -169,6 +167,11 @@ export const Debug = () => {
     await handleFormulateQuestion(JSON.stringify(nextConversation));
 
     progression.increase();
+    addLog(
+      `Progression updated: ${progression.passed + 1} passed, ${
+        progression.remaining - 1
+      } remaining`,
+    );
   };
 
   return (
@@ -179,7 +182,7 @@ export const Debug = () => {
         }}
       />
 
-      <div className="bg-black p-4 text-white flex flex-col gap-4">
+      <div className="bg-black p-4 text-white flex flex-col gap-4 h-full overflow-y-auto">
         <h2 className="text-xl font-bold text-white">Debug</h2>
         <p>{getLastAssistantQuestion(conversationStore.conversation)}</p>
         <section className="grid grid-cols-[1fr_auto] gap-2">
@@ -259,12 +262,46 @@ export const Debug = () => {
           </div>
         </section>
 
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Image Generation
+            </h3>
+
+            <div className=" h-50 w-50 border border-white">
+              {imagePath && (
+                <img src={imagePath} width="200" height="200" alt="Generated" />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Background Removal
+            </h3>
+
+            <div className=" h-50 w-50 border border-white">
+              {bgResult && (
+                <img src={bgResult} width="200" height="200" alt="No image" />
+              )}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">Model</h3>
+            <div className="w-50 h-50 border border-white">
+              {modelResult && <Scene model={modelResult} pointSize={0.002} />}
+            </div>
+          </div>
+        </section>
+
         <section>
           <h3 className="text-lg font-semibold text-white mb-2">
             Conversation
           </h3>
           <Textarea
             value={JSON.stringify(conversationStore.conversation, null, 2)}
+            className="h-fit"
           />
           <h3 className="text-lg font-semibold text-white mb-2">Analysis</h3>
           <Textarea value={JSON.stringify(analysis)} />
@@ -273,38 +310,6 @@ export const Debug = () => {
             Image prompt
           </h3>
           <Textarea value={JSON.stringify(imagePrompt)} />
-        </section>
-
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Image Generation
-            </h3>
-            {imagePath && (
-              <img src={imagePath} width="200" height="200" alt="Generated" />
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Background Removal
-            </h3>
-            {bgResult && (
-              <img
-                src={bgResult}
-                width="200"
-                height="200"
-                alt="No background"
-              />
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">Model</h3>
-            <div className="w-50">
-              {modelResult && <Scene model={modelResult} pointSize={0.002} />}
-            </div>
-          </div>
         </section>
       </div>
     </>
