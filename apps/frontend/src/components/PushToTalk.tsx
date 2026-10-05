@@ -5,10 +5,12 @@ export const PushToTalk = ({
   onSubmit,
   onRecordStart,
   onRecordEnd,
+  disabled = false,
 }: {
   onSubmit?: (audio: Blob) => void;
   onRecordStart?: () => void;
   onRecordEnd?: () => void;
+  disabled?: boolean;
 }) => {
   const { isRecording, isReady, audioBlob, startRecording, stopRecording } =
     useAudioRecorder(240);
@@ -18,7 +20,7 @@ export const PushToTalk = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isReady || e.repeat || isRecording) return;
+      if (!isReady || disabled || e.repeat || isRecording) return;
 
       if (e.key === " ") {
         e.preventDefault();
@@ -44,7 +46,7 @@ export const PushToTalk = ({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [isReady, isRecording]);
+  }, [isReady, isRecording, disabled]);
 
   useEffect(() => {
     onSubmitRef.current = onSubmit;

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { PROGRESSION } from "../../../shared/config";
-import type { Conversation } from "../../../shared/types";
+import type { Analysis, Conversation } from "../../../shared/types";
 import type { Log } from "./types";
 
 // **** LOGS ****
@@ -24,19 +24,21 @@ type ConversationState = {
   reset: () => void;
 };
 
+const INITIAL_CONVERSATION: Conversation[] = [
+  {
+    role: "assistant",
+    content: "What memory would you like us to record today?",
+  },
+];
+
 export const useConversationStore = create<ConversationState>()((set) => ({
-  conversation: [
-    {
-      role: "assistant",
-      content: "What memory would you like us to record today?",
-    },
-  ],
+  conversation: INITIAL_CONVERSATION,
   setConversation: (conversation) => set({ conversation }),
   addConversation: (conversation) =>
     set((state) => ({
       conversation: [...state.conversation, conversation],
     })),
-  reset: () => set({ conversation: [] }),
+  reset: () => set({ conversation: INITIAL_CONVERSATION }),
 }));
 
 //** PIPELINE **//
@@ -74,5 +76,26 @@ export const useProgressionStore = create<ProgressionState>()((set) => ({
       passed: useProgressionStore.getState().passed + 1,
       remaining: useProgressionStore.getState().remaining - 1,
     }),
-  reset: () => set({ passed: 0, remaining: 0 }),
+  reset: () => set({ passed: 0, remaining: PROGRESSION.MAX_TURNS }),
+}));
+
+//** RESULT **//
+type ResultState = {
+  analysis: Analysis | null;
+  imageUrl: string;
+  modelUrl: string;
+  setAnalysis: (analysis: Analysis | null) => void;
+  setImageUrl: (imageUrl: string) => void;
+  setModelUrl: (modelUrl: string) => void;
+  reset: () => void;
+};
+
+export const useResultStore = create<ResultState>()((set) => ({
+  analysis: null,
+  imageUrl: "",
+  modelUrl: "",
+  setAnalysis: (analysis) => set({ analysis }),
+  setImageUrl: (imageUrl) => set({ imageUrl }),
+  setModelUrl: (modelUrl) => set({ modelUrl }),
+  reset: () => set({ analysis: null, imageUrl: "", modelUrl: "" }),
 }));
